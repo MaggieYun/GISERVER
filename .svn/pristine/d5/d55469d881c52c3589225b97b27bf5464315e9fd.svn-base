@@ -1,0 +1,115 @@
+<doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>添加动态地图</title>
+  <style>
+    #mapDiv{
+      width: 800px;
+      height: 600px;
+      float: left;
+    }
+  </style>
+</head>
+<body>
+  <div id="mapDiv"></div>
+  <div id="result">
+    <button type="button" id="activate">绘制多边形</button><br><br>
+  </div><br><br>
+
+</body>
+<script src="../libs/geoSetup.js"></script>
+<script src="../libs/jquery.js"></script>
+<script src="../libs/openlayers/OpenLayers.js"></script>
+<script src="../libs/openlayers/ExDyLayer2.js"></script>
+<script src="../libs/openlayers/ExSelectFeature2.js"></script>
+<script src="../libs/openlayers/ExSelectFeature.js"></script>
+<script src="../libs/openlayers/GMapLayer.js"></script>
+<script src="../libs/openlayers/PGisLayer.js"></script>
+<script src="../libs/javascript.util.js"></script>
+<script src="../libs/jsts.js"></script>
+<script src="../libs/openlayers/iMap.js"></script>
+<script>
+  $(function(){
+    //设置地区 320500为苏州 
+    //设置坐标系 PGIS or gmap
+    GeoSetup.setLocation('320500','PGIS');
+    
+    //注意前缀「pgis@」标识底图类型
+    var base_url = 'pgis@http://172.16.64.24:8888/tiles';
+
+    var map = $('#mapDiv').iMap({
+      bases: [base_url],
+      extent: GeoSetup.getExtent()//获取地图范围
+    });
+
+    // 'http://localhost:6666/giserver2013/query?where=gid>10&inSR=4326&outSR=4326&bbox='
+    // 'http://localhost:6666/giserver2013/query?where=[TASK_POINT_ID]<30&inSR=4326&outSR=4326&bbox='
+
+    var SelectFeatureCtl = 
+      new OpenLayers.Control.ExSelectFeature(map.clientLayer,{
+              types:[1],
+              persist:true,
+              multiple : false,
+              toggle : true,
+              clickout : false, // 默认为true
+              continuous : false,
+              onPolygonDone : function(geometry) {
+                $.ajax({
+                        url: 'http://localhost:6666/giserver2013/query?where=gid>10&inSR=4326&outSR=4326&bbox='+ geometry.toString(),
+                        dataType:'JSONP',
+                        // context: this,
+                        success: function(data){
+
+                                  console.log(data);
+
+                                  // var type = data.type,
+                                  // records = data.features,
+                                  // len = records.length,
+                                  // i;
+                                  // // console.log(len);
+
+                                  // var features = [];
+                                  // for(i = 0;i < len;i++){
+                                  //     var record = records[i],
+                                  //         coordinates = record["geometry"]["coordinates"],
+                                  //         geometryType = record["geometry"]["type"],
+                                  //         properties = record["properties"],
+
+                                  //         geometry = new OpenLayers.Geometry.geometryType(coordinates),
+                                  //         feature = new OpenLayers.Feature.Vector(geometry,properties);
+
+                                  //         console.log(feature);
+
+                                  //         features.push(feature);
+                                  // }
+                                  // console.log(features);
+                                  
+                              }
+                  });
+              }
+
+          });
+
+
+    map.map.addControl(SelectFeatureCtl);
+    $("#activate").click(function(){
+      SelectFeatureCtl.activate(1);
+    });
+
+
+    // map.addLayer({
+    //   url: 'http://localhost:6666/giserver2013/',
+    //   where : "gid>10"
+    // });
+
+    map.addLayer({
+      url: 'http://localhost:6666/giserver2013/',
+      where : "[TASK_POINT_ID]<30"
+    });
+
+
+
+  });
+</script>
+</html>

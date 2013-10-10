@@ -1,0 +1,251 @@
+#coding=utf-8
+import os,sys
+from sqlalchemy import create_engine
+try:
+    import json
+except ImportError:
+    import simplejson as json
+
+scope={}  #字典 给eval一个命名空间，一定程度预防安全隐患
+
+class LayerFactory:
+
+    SYMBOL_CACHE = {}   #缓存
+
+    def __init__(self,dirpath):
+        self.dirpath = dirpath
+        self.__parse()
+
+    def __parse(self):
+        '''
+        获取配置文件路径
+        '''
+        self.config = ConfigManager(self.dirpath)  #所有配置内容
+
+    def createLayer(self,filepath):
+        result = LayerFactory.SYMBOL_CACHE.get(filepath)  #从缓存中判断该实例是否已创建
+        if result is None:
+            print "from create"
+            self.config.load(filepath)
+            self.config.getLayerDef()
+            result = Layer(self.config.layerDef) 
+            LayerFactory.SYMBOL_CACHE[filepath] = result 
+        print "cache",LayerFactory.SYMBOL_CACHE   
+        return result
+
+    def removeLayer(self):
+        pass
+
+
+class ConfigManager:
+    """docstring for ConfigManager"""
+    def __init__(self,dirpath):
+        self.dirpath = dirpath
+        self.data = None
+
+    def load(self,filepath):
+        '''
+        将文本转化为字典对象
+        '''
+        print filepath
+        pathname = os.path.join(self.dirpath,filepath)
+        print pathname
+        stream = file(pathname, 'r').read()
+        self.data = eval(stream,scope)  #使用eval存在安全隐患
+        print self.data
+
+    def getLayerDef(self):
+        self.layerDef = LayerDef(self.data.get("content")) 
+        print self.layerDef
+
+class LayerDef:
+    def __init__(self,data):
+        self.raw = data
+        self.__parse()
+        self.get_p_field()
+        self.get_xy_field()
+        self.get_g_field()
+
+        print self.raw
+        print self.engine,self.scheme_type,self.scheme_name
+
+    def __parse(self):
+        '''
+        约定：scheme_type：0:view;1:table
+        '''
+        self.engine = self.raw.get("engine")    #类型为字符串
+        self.scheme_type = self.raw.get("scheme_type")
+        self.scheme_name = self.raw.get("scheme_name")
+        self.p_field = None
+        self.xy_field = None
+        self.g_field = None
+        self.style = Style(self.raw.get("style"))
+
+    def get_p_field(self):   #从数据库中读取对应字段数据
+        '''
+        主键字段
+        '''
+        pass
+
+    def get_xy_field(self):   #二选一，根据表的实际情况写逻辑
+        self.x_field = None
+        self.y_field = None
+        pass
+     
+    def get_g_field(self):
+        self.g_field = None
+        pass    
+
+    def validate(self):
+        '''
+        考虑如何一次性显示所有错误
+        '''
+        sql_view = "select * from user_views where view_name = upper('%s')" %self.scheme_name   #查询视图是否存在
+        sql_table = "select * from user_tables where table_name = upper('%s')" %self.scheme_name   #查询表是否存在
+        sql_p = "select * from user_constraints where constraint_type='P'and TABLE_name=upper('%s')" %self.scheme_name #查看主键
+        sql_col = "select * from cols  WHERE TABLE_name=upper('%s')" %self.scheme_name   #查看字段名（与数据类型）是否存在
+        
+        engine = create_engine(self.engine) 
+        if engine.connect():       #self.engine验证通过
+            conn =engine.connect() 
+            if self.scheme_type == 0:  #视图
+                results = conn.execute(sql_view)
+                val = results.fetchone()
+                if val is not None:   #self.scheme_name验证通过
+                    print val
+                    result = conn.execute(sql_p)  #如何获取主键字段名
+                    print result   
+                else:
+                    print "'scheme_name' is wrong"    
+                    return   
+
+            elif self.scheme_type == 1:  #表
+                
+                results = conn.execute(sql_table)
+                val = results.fetchone()
+                if val is not None:  #self.scheme_name验证通过
+                    print val
+                    pass  #再查看主键和字段是否存在
+
+            
+
+            conn.close()#关闭数据库连接,将connection放回连接池
+        else:
+            print "can't  create_engine%s"%self.engine  
+            return  
+
+
+class Style:
+    def __init__(self,data):
+        self.raw = data
+        self.__parse()
+        print self.raw
+
+    def __parse(self):
+        self.rule = Rule(self.raw.get("rule"))
+
+class Rule:
+    def __init__(self,data):
+        self.raw = data
+        self.__parse()
+        print self.raw
+        print self.filter
+
+    def __parse(self):
+        string = "lambda x:"+self.raw.get("filter").replace("[ID]","x")
+        print string
+        self.filter = eval(string,scope)   #得到一个函数对象,何时发挥作用，怎么使用
+        Symbol.create_symbol(self.raw.get("symbol"))
+
+
+class Symbol:
+    def __init__(self,data):
+        self.raw = data
+        self.__parse()     #w问题：继承机制有问题，子类该方法未实现！！！
+
+    def __parse(self):
+        pass
+
+    @classmethod
+    def create_symbol(cls,kw):
+        if kw.has_key("icon"):     #点图层
+            return PointSymbol(kw)
+        elif kw.has_key("color"):   #线图层
+            return LineSymbol(kw) 
+        else:
+            pass        
+
+             
+class PointSymbol(Symbol):
+    def __init__(self,data):
+        Symbol.__init__(self,data)
+        # print self.raw
+        self.__parse()
+        # print self.size
+        # self.icon.show()
+
+    def __parse(self):
+        import Image
+        dirpath = os.path.dirname(__file__)
+        path = self.raw.get("icon").replace("/","\\")
+        icon_path=os.path.join(dirpath,path)  #拼接获得图标路径
+
+        if Image.open(icon_path):  #考虑是否能成功打开，错误异常捕获
+            self.icon = Image.open(icon_path)
+            self.size = self.raw.get("size",self.icon.size)
+
+    def draw(self,image):
+        self.image = image
+        pass        
+            
+class LineSymbol(Symbol):
+    def __init__(self,data):
+        Symbol.__init__(self,data)
+        self.__parse()
+
+        print self.raw
+        print self.color,self.width,self.alpha
+
+    def __parse(self):
+        self.color = self.raw.get("color")
+        self.width = self.raw.get("width")
+        self.alpha = self.raw.get("alpha")
+
+    def draw(self,image):
+        self.image = image
+        pass
+        
+class Layer:
+    def __init__(self,definition):
+        self.cache = None
+        self.definition = definition
+        self.image = None
+
+    def query(self,arg,outsr):
+        pass
+
+    def export(self,size,bbox,outsr):
+        self.size = size
+        self.bbox = bbox
+        self.outsr = outsr
+        self.image = Image.new("RGBA", self.size, (255,255,255,0))
+        self.definition.style.rule.symbol.draw(self.image)
+
+
+
+
+if __name__ == '__main__':
+    dirpath = os.path.dirname(__file__)
+    path = os.path.join(dirpath, "configs")
+    layerFactory = LayerFactory(path)
+    # layerFactory.createLayer('config1.py').export()
+    layer1=layerFactory.createLayer('config1')
+    layer1.definition.validate()
+
+    # layer1.export()
+    # layer2=layerFactory.createLayer('a\config3')
+    # print "_______________________________________"
+
+    # # layer2.export((400,400),(0,0),4326)
+    # layer3=layerFactory.createLayer('a\config3.py')
+

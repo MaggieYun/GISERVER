@@ -1,0 +1,158 @@
+<doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>添加动态地图</title>
+  <style>
+    #mapDiv{
+      width: 800px;
+      height: 600px;
+      float: left;
+    }
+  </style>
+</head>
+<body>
+  <div id="mapDiv"></div>
+  <div id="result">
+    <button type="button" id="activate">区域选择contains</button><br><br>
+    <button type="button" id="linebuffer">线缓冲</button>
+    缓冲距离：<input type="text" id="buffer" value = 0.005>km<br><br>
+<!--     <button type="button" id="lineIntersects">线相交intersects</button><br><br> -->
+
+  </div><br><br>
+
+</body>
+<script src="../libs/geoSetup.js"></script>
+<script src="../libs/jquery.js"></script>
+<script src="../libs/openlayers/OpenLayers.js"></script>
+<script src="../libs/openlayers/ExDyLayer2.js"></script>
+<script src="../libs/openlayers/ExSelectFeature2.js"></script>
+<script src="../libs/openlayers/ExSelectFeature.js"></script>
+<script src="../libs/openlayers/GMapLayer.js"></script>
+<script src="../libs/openlayers/PGisLayer.js"></script>
+<script src="../libs/javascript.util.js"></script>
+<script src="../libs/jsts.js"></script>
+<script src="../libs/openlayers/iMap.js"></script>
+<script>
+  $(function(){
+    //设置地区 320500为苏州 
+    //设置坐标系 PGIS or gmap
+    GeoSetup.setLocation('320500','PGIS');
+    
+    //注意前缀「pgis@」标识底图类型
+    var base_url = 'pgis@http://172.16.64.24:8888/tiles';
+
+    var map = $('#mapDiv').iMap({
+      bases: [base_url],
+      extent: GeoSetup.getExtent()//获取地图范围
+    });
+
+    // 'http://localhost:6666/giserver2013/query?where=gid>10&inSR=4326&outSR=4326&bbox='
+    // 'http://localhost:6666/giserver2013/query?where=[TASK_POINT_ID]<30&inSR=4326&outSR=4326&bbox='
+
+    map.clientLayer.styleMap = new OpenLayers.StyleMap(
+              OpenLayers.Util.extend(
+                  OpenLayers.Util.extend({},
+                      OpenLayers.Feature.Vector.style['default']), 
+                        {
+                          fillOpacity: 1,  
+                          fillColor: "green"
+                        }));
+
+    urlprefix = 'http://localhost:6666/giserver2013/configs/2/query?where=gid>10&inSR=4326&outSR=4326&outfields=GID,ID,roadname,roadid,roadtype,shape_len,updatetime,source&spatialRel=contains&bbox='
+
+    urlprefix2 = 'http://localhost:6666/giserver2013/configs/1/query?where=1=1&inSR=4326&outSR=4326&spatialRel=contains&bbox='
+
+   // urlprefix = 'http://localhost:6666/giserver2013/query?where=1=1&inSR=4326&outSR=4326&outfields=TASK_PATH_LINE,TASK_POINT_NAME,TASK_ID,TASK_POINT_PASS_TIME,TASK_POINT_ID,TASK_POINT_SEQ_NO,TASK_POINT_LONGITUDE,TASK_POINT_LATITUDE&bbox='
+    
+
+
+    var SelectFeatureCtl = 
+      new OpenLayers.Control.ExSelectFeature(map.clientLayer,{
+          types:[1],
+          persist:true,
+          multiple : false,
+          toggle : true,
+          clickout : false, // 默认为true
+          continuous : false,
+          onPolygonDone : function(geometry) {
+            $.ajax({
+                    url: urlprefix+ geometry.toString(),
+                    dataType:'JSONP',
+                    // context: this,
+                    success: function(data){
+                        map.clientLayer.removeAllFeatures();
+                        var geojson = new OpenLayers.Format.GeoJSON();
+                        var features = geojson.read(data);
+                        map.clientLayer.addFeatures(features);
+                        
+                    }
+              });
+          }
+
+      });
+
+
+    var drawLineCtl = new OpenLayers.Control.DrawFeature(map.clientLayer,
+      OpenLayers.Handler.Path, {
+      persist:true,
+      featureAdded : function(feature){
+        var geometry = feature.geometry;
+        $.ajax({
+                    url: urlprefix2 + geometry.toString() + '&buffer='+buffer,
+                    dataType:'JSONP',
+                    // context: this,
+                    success: function(data){
+                        map.clientLayer.removeAllFeatures();
+                        var geojson = new OpenLayers.Format.GeoJSON();
+                        var features = geojson.read(data);
+                        map.clientLayer.addFeatures(features);
+                        
+                        var bufferFeature = new OpenLayers.Format.WKT().read(data.bufferArea);
+
+                        var temp_style = OpenLayers.Util.extend({},
+                                OpenLayers.Feature.Vector.style['default']);
+                        var buffer_style = OpenLayers.Util.extend(temp_style, {
+                                    strokeDashstyle: "longdash"});
+                        bufferFeature.style = buffer_style;
+                        map.clientLayer.addFeatures([bufferFeature]);   
+                    }
+              });
+          }
+      });
+
+
+    map.map.addControls([SelectFeatureCtl,drawLineCtl]);
+    $("#activate").click(function(){
+      map.clientLayer.removeAllFeatures();
+      drawLineCtl.deactivate();
+      SelectFeatureCtl.activate(1);
+    });
+
+    $("#linebuffer").click(function(){
+      buffer = $("#buffer").val();
+      map.clientLayer.removeAllFeatures();
+      SelectFeatureCtl.deactivate();
+      drawLineCtl.activate();
+    });
+
+
+    map.addLayer({
+      url: 'http://localhost:6666/giserver2013/configs/2/',
+      where : "gid>10",
+      outfields:"GID,ID,roadname,roadid,roadtype,shape_len,updatetime,source"
+    });
+
+    map.addLayer({
+      url: 'http://localhost:6666/giserver2013/configs/1/',
+      where : "[TASK_POINT_ID]<30"
+      // outfields:"TASK_PATH_LINE,TASK_POINT_NAME,TASK_ID,TASK_POINT_PASS_TIME,TASK_POINT_ID,TASK_POINT_SEQ_NO,TASK_POINT_LONGITUDE,TASK_POINT_LATITUDE",
+      // outfields:'*'
+      // format: 'JSON'
+    });
+
+
+
+  });
+</script>
+</html>

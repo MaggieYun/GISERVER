@@ -1,0 +1,78 @@
+#coding=utf-8
+from functools import partial
+
+class TableCache(object):
+	'''
+	Database Table(or view) Cache Class
+
+	'''
+	SQL = "SELECT %s from %s"
+
+	def __init__(self,engine,name,isTable=True):
+		self.engine = engine
+		self.name = name
+		self.isTable = isTable
+		self.pk_dict = {}
+		self.list = []
+
+	def query(self,selector,outfields=None):
+		'''
+		根据选择条件和返回字段,查询记录.
+		?如果未指定返回字段的情况下,返回所有？返回主键？返回主键即要指定主键字段或者自动识别主键字段，如果没有主键(比如视图)又怎么办？
+
+		@param {function} selector 选择条件
+		@param {list<str>} outfields 返回字段列表,默认为None
+		'''
+		if outfields is None:
+			outfields = self.fields
+		result = [map(lambda field:record.get(field),outfields) for record in filter(selector,self.list)]
+		# print [dict(zip(outfields,record)) for record in result]
+		return result,outfields
+
+	def sync(self,fields='*'):
+		'''
+		同步数据库,从数据库中获取最新的记录;可以指定同步字段,默认同步所有字段信息;
+		?是否需要在第一次调用时,强制同步所有字段信息.
+			Y:	之后的查询可以支持任何字段值的返回,但不保证数据的实时性;
+			N:	会加载不必要的数据,占用过多系统资源;
+			
+		@param {list<str>} fields 更新字段列表
+		'''
+		connect = self.engine.connect()
+		result = connect.execute(self.SQL%(fields,self.name))
+		self.fields = result.keys()
+		self.list = [dict(zip(self.fields,record)) for record in result.fetchall()]
+		return self
+
+	def gen_filter(self,filter_str):
+		'''
+		[task_point_id]%2 == 0 >> lambda record:record.get("task_point_id")%2 == 0
+		'''
+		import re
+		p = r'\[(\w+)\]'
+		pass
+
+class Engine:
+	cache = {}
+
+	@classmethod
+	def create(cls,dsn):
+		'''
+		create databse engine
+		@param {str} dsn database connection string
+		'''
+		engine = cls.cache.get(dsn)
+		if engine is None:
+			from sqlalchemy import create_engine
+			engine = create_engine(dsn)
+			cls.cache[dsn] = engine
+		return engine
+
+if __name__ == '__main__':
+	dsn = "oracle://gis:gis@172.16.60.35:1521/yhte"
+	name = "V_TASK_POINT"
+	engine = Engine.create(dsn)
+
+	cache = TableCache(engine,name).sync()
+	f = lambda record:record.get("task_point_id")%2 == 0
+	cache.query(f,['task_point_id'])

@@ -1,0 +1,23 @@
+scheme_name = V_TASK_POINT
+scheme_type = 0
+x_field = TASK_POINT_LONGITUDE
+y_field = TASK_POINT_LATITUDE
+p_field = TASK_POINT_ID
+
+[database]
+dbname = oracle
+host = 172.16.60.35
+port = 1521
+user = gis
+psw = gis
+name = yhte
+
+[aliases]
+TASK_POINT_ID = ID
+TASK_POINT_NAME = NAME
+TASK_POINT_PASS_TIME = TIME
+TASK_PATH_LINE = PATH
+
+[styles]
+style1 = layer1.xml
+

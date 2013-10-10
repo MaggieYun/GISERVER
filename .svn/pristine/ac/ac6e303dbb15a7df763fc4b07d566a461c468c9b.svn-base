@@ -1,0 +1,82 @@
+#coding=utf-8
+import os,sys
+scope={}  #字典 给eval一个命名空间，一定程度预防安全隐患
+class Style:
+    def __init__(self,data):
+        self.raw = data
+        self.__parse()
+        self.rule.set_style(self)
+
+    def set_layerDef(self,layerDef):
+        self.layerDef = layerDef
+
+    def __parse(self):
+        self.rule = Rule(self.raw.get("rule"))
+
+class Rule:
+    def __init__(self,data):
+        self.raw = data
+        self.__parse()
+        self.symbol.set_rule(self)
+
+    def __parse(self):
+        string = "lambda x:"+self.raw.get("filter").replace("[ID]","x")
+        # print string
+        self.filter = eval(string,scope)   #得到一个函数对象,何时发挥作用，怎么使用
+        self.symbol = Symbol.create_symbol(self.raw.get("symbol"))
+
+    def set_style(self,style):
+        self.style = style    
+
+
+class Symbol:
+    def __init__(self,data):
+        self.raw = data
+        self.parse()     #问题：继承机制有问题，子类该方法未实现！！！
+
+    def parse(self):
+        pass
+
+    def set_rule(self,rule):
+        self.rule = rule
+        
+    @classmethod
+    def create_symbol(cls,kw):
+        if kw.has_key("icon"):     #点图层
+            return PointSymbol(kw)
+        elif kw.has_key("color"):   #线图层
+            return LineSymbol(kw)     
+
+             
+class PointSymbol(Symbol):
+    def __init__(self,data):
+        Symbol.__init__(self,data)
+
+    def parse(self):
+        import Image
+        dirpath = os.path.dirname(__file__)
+        path = self.raw.get("icon")
+        icon_path=os.path.join(dirpath,path)  #拼接获得图标路径
+        if Image.open(icon_path):  #考虑是否能成功打开，错误异常捕获
+            self.icon = Image.open(icon_path)
+            self.size = self.raw.get("size",self.icon.size)
+        
+    def draw(self,layer):
+        self.image = layer.image
+        self.scale = layer.scale
+
+
+        pass        
+            
+class LineSymbol(Symbol):
+    def __init__(self,data):
+        Symbol.__init__(self,data)
+
+    def parse(self):
+        self.color = self.raw.get("color")
+        self.width = self.raw.get("width")
+        self.alpha = self.raw.get("alpha")
+
+    def draw(self,image):
+        self.image = image
+        pass

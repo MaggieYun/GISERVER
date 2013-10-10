@@ -1,0 +1,32 @@
+#coding=utf-8
+import os,sys
+from layerdef import *
+from layer import *
+from layerfactory import *
+
+
+if __name__ == '__main__':
+    dirpath = os.path.dirname(__file__)
+    path = os.path.join(dirpath, "configs")
+    
+    layerFactory = LayerFactory(path)
+    layer1=layerFactory.createLayer('config2')
+    print "errors:",layer1.definition.errors
+
+    bbox = (120.513513,31.28561972,120.98838306,31.36400551)
+    where = "TASK_POINT_ID<30"  #有待改进
+    insr = 4326
+    outfields = "TASK_POINT_ID,TASK_POINT_LONGITUDE,TASK_POINT_LATITUDE"
+    # outfields = "*"
+    outsr = 4326
+
+    queryParameter = QueryParameter(bbox,where,insr,outfields,outsr)
+    queryResult = layer1.query(queryParameter)
+    
+    print "aliases:",queryResult.aliases
+    print "fields:",queryResult.fields
+    print "features:",queryResult.features
+    print "type:",queryResult.type
+
+
+

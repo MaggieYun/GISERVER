@@ -1,0 +1,105 @@
+#coding=utf-8
+import os,sys
+from sqlalchemy import create_engine
+from style import *
+
+
+class LayerDef:
+
+    VIEW_SQL = "select * from user_views where view_name = upper('%s')"
+    TABLE_SQL = "select * from user_tables where table_name = upper('%s')"
+    PRIMARY_SQL = "select column_name from user_cons_columns where table_name = upper('%s') and position is not null"
+    COLUMN_SQL = "select column_name from cols  WHERE TABLE_name=upper('%s')"
+
+    def __init__(self,data):
+        self.raw = data
+        self.__parse()
+        self.errors = self.validate()
+
+    def __parse(self):
+        '''
+        约定：scheme_type：0:view;1:table
+        '''
+        self.engine = create_engine(self.raw.get("engine"))    #类型为字符串
+        self.scheme_type = self.raw.get("scheme_type")
+        self.scheme_name = self.raw.get("scheme_name")
+        self.p_field = self.raw.get("p_field")
+        self.x_field = self.raw.get("x_field")
+        self.y_field = self.raw.get("y_field")
+        self.g_field = None
+        self.gemetryType = None 
+        self.style = Style(self.raw.get("style"))
+        self.style.set_layerDef(self)
+        self.aliases = self.raw.get("aliases")
+
+
+    def set_layer(self,layer):
+        self.layer =layer   
+
+    def validate(self):
+        '''
+        考虑如何一次性显示所有错误
+        '''
+        errors = []  #存放所有错误信息
+        print "start validate---------------"
+        try:
+            self.engine.connect()       #self.engine验证通过
+            conn = self.engine.connect()
+            errors=self.assist_validate(errors) 
+            self.conn.close()#关闭数据库连接
+        except:
+            s = "can't  create_engine:%s"%self.raw.get("engine")  
+            errors.append(s)
+        return errors  
+
+    def assist_validate(self,errors):
+        '''
+        辅助判断
+        '''
+        sql_view = LayerDef.VIEW_SQL %self.scheme_name   #查询视图是否存在
+        sql_table = LayerDef.TABLE_SQL %self.scheme_name   #查询表是否存在
+        sql_p = LayerDef.PRIMARY_SQL %self.scheme_name #查询主键字段名
+        sql_col = LayerDef.COLUMN_SQL %self.scheme_name   #查看字段名（与数据类型）是否存在
+        
+        if self.scheme_type == 0:  #视图
+            results = self.conn.execute(sql_view)
+        elif self.scheme_type == 1:  #表   
+            results = self.conn.execute(sql_table)
+        val = results.fetchone()
+
+        if val is not None:   #self.scheme_name验证通过
+            print "scheme_name pass"
+            p_results = self.conn.execute(sql_p)  
+            p_val = p_results.fetchone()
+            xy_results = self.conn.execute(sql_col)  
+            xy_val = map(str,reduce(lambda x,y:x+y,map(list,xy_results.fetchall())))
+            if p_val is None:
+                s = "p_field is wrong,%s has no primary key"%self.scheme_name
+                errors.append(s)
+            else:    
+                if (p_val[0] == self.p_field):  #self.p_field通过验证
+                    print "p_field pass"
+                else:
+                    s = "'p_field' is wrong"  
+                    errors.append(s)
+
+                if self.g_field in xy_val:
+                    print "g_field pass"
+                    return
+
+                if self.x_field in xy_val:  #self.x_field通过验证
+                    print "x_field pass"
+                else:
+                    s =  "x_field is wrong"  
+                    errors.append(s)   
+
+                if self.y_field in xy_val: #self.y_field通过验证
+                    print "y_field pass"
+                else:
+                    s = "y_field is wrong"  
+                    errors.append(s)           
+        else:
+            s = "'scheme_name' is wrong"    
+            errors.append(s)   
+
+        return errors                 

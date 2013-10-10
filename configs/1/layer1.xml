@@ -1,0 +1,28 @@
+<Map srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
+
+  <Style name="My Style">
+    <Rule>
+      <Filter>[TASK_POINT_SEQ_NO] &lt; 10</Filter>
+      <PointSymbolizer file="../../resources/images/point.png" width="8" height="8" type="png" />
+      <TextSymbolizer size="10" fill="white" face-name="DejaVu Sans Book" halo-fill="#2E2F39" halo-radius="1" wrap-width="20">[TASK_POINT_SEQ_NO]</TextSymbolizer>
+    </Rule>
+
+    <Rule>
+      <Filter>[TASK_POINT_SEQ_NO] &gt; 20</Filter>
+      <PointSymbolizer file="../../resources/images/star.png" width="8" height="8" type="png" />
+      <TextSymbolizer size="10" fill="white" face-name="DejaVu Sans Book" halo-fill="#2E2F39" halo-radius="1" wrap-width="20">[TASK_POINT_SEQ_NO]</TextSymbolizer>
+    </Rule>
+
+    <Rule>
+      <ElseFilter/>
+      <PointSymbolizer file="../../resources/images/blue.png" width="8" height="8" type="png" />
+      <TextSymbolizer size="10" fill="white" face-name="DejaVu Sans Book" halo-fill="#2E2F39" halo-radius="1" wrap-width="20">[TASK_POINT_SEQ_NO]</TextSymbolizer>
+    </Rule>
+    
+  </Style>
+
+  <Layer name="My Layer" srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
+    <StyleName>My Style</StyleName>
+  </Layer>
+
+</Map>

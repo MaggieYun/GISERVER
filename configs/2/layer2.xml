@@ -1,0 +1,33 @@
+<Map  srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
+  <Style name="Style1">
+    <Rule>
+      <Filter>[roadtype] = 'hw_ramp'</Filter>
+      <LineSymbolizer stroke="red" stroke-width="0.5" />
+    </Rule>
+    <Rule>
+      <Filter>[roadtype] = 'main_road'</Filter>
+      <LineSymbolizer stroke="#122F7F" stroke-width="4" />
+    </Rule>
+
+    <Rule>
+      <ElseFilter/>
+      <LineSymbolizer stroke="black" stroke-width="2" />
+      <TextSymbolizer size="10" fill="white" face-name="Microsoft YaHei Regular" halo-fill="#2E2F39" halo-radius="1" wrap-width="20">[roadname]</TextSymbolizer>
+    </Rule>
+  </Style>
+
+  <Layer name="PostGIS Layer" status="on"  srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
+      <StyleName>Style1</StyleName>
+<!--       <Datasource>
+        <Parameter name="type">postgis</Parameter>
+        <Parameter name="host">localhost</Parameter>
+        <Parameter name="dbname">template_postgis_20</Parameter>
+        <Parameter name="user">postgres</Parameter>      
+        <Parameter name="password">123456</Parameter>
+        <Parameter name="table">viwpt</Parameter>
+        <Parameter name="estimate_extent">false</Parameter>
+        <Parameter name="extent">-180,-90,180,89.99</Parameter>
+      </Datasource> -->
+  </Layer>
+
+</Map>

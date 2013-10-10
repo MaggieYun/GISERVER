@@ -1,0 +1,141 @@
+#coding=utf-8
+class Layer:
+
+    QEURY_SQL = "select * from %s"
+
+    def __init__(self,definition):
+        self.cache = None
+        self.definition = definition
+        self.definition.set_layer(self)
+        self.image = None
+
+    def reload(self):
+        pass
+
+    def query(self,queryParameter):
+
+        self.queryParameter = queryParameter
+        aliases_dict = self.definition.aliases
+        features = []
+
+        conn = self.definition.conn
+        sql = Layer.QEURY_SQL%self.definition.scheme_name
+        results = conn.execute(sql)#执行查询
+        records = results.fetchall()#获取数据所有记录
+        conn.close()#关闭数据库连接,将connection放回连接池
+
+        keys = map(lambda key:key.upper(),results.keys())
+        results = map(lambda vals:dict(zip(keys,map(encodeAttr,vals))),records)
+        # print results
+
+        for item in results:
+            x = item.get(self.definition.x_field,0)
+            y = item.get(self.definition.y_field,0) 
+            if self.is_within_bbox([x,y]):
+                features.append(item)       
+        where = self.queryParameter.where
+        func=eval("lambda record:record.get('"+where[0]+"')"+where[1])     
+        features=filter(func,features)  
+        
+        outfields = self.queryParameter.outfields
+        for item in outfields:
+            keys.remove(item)  #剩下要删除的键
+
+        for i in xrange(len(features)):
+            for key in keys:
+                features[i].pop(key)    #删除对应的键值
+
+        last_features=[]
+        for feature in features:
+            last_features.append(feature.values())
+
+        aliases_dict_keys = aliases_dict.keys()
+        for key in keys:
+            if key in aliases_dict_keys:
+                aliases_dict.pop(key)   #删除对应的别名键值
+                     
+        fields = aliases_dict.keys()
+        aliases = aliases_dict.values()
+        data_type = self.definition.data_type 
+        
+
+
+        queryResult = QueryResult(aliases,fields,last_features,data_type)
+
+        return queryResult
+
+
+    def is_within_bbox(self,point):  
+        "@point 2-list:[x,y]"
+        bbox = self.queryParameter.bbox
+        xmin=bbox[0]
+        ymin=bbox[1]
+        xmax=bbox[2]
+        ymax=bbox[3]
+        if ((xmin<=point[0]<=xmax) and (ymin<=point[1]<=ymax)):
+            return True
+        else:
+            return False
+
+    def export(self,queryParameter):
+        self.size = queryParameter.size
+        self.bbox = queryParameter.bbox
+        self.outsr = outsr
+        self.image = Image.new("RGBA", self.size, (255,255,255,0))
+        self.definition.style.rule.symbol.draw(self)
+    
+    def toScreen(self):
+        pass
+
+    def toGemtry(self):
+        pass
+
+class QueryParameter:
+    def __init__(self,bbox,where,insr,outfields,outsr):
+        self.bbox = bbox
+        self.where = where
+        self.insr = insr
+        self.outfields = outfields
+        self.outsr = outsr
+
+    @classmethod
+    def create(cls,requestHandler):
+        self.layer = requestHandler.get_argument("layer")
+        self.bbox = requestHandler.get_argument("bbox")
+        self.where = requestHandler.get_argument("where")
+        self.insr = requestHandler.get_argument("insr")
+        self.outfields = requestHandler.get_argument("outfields")
+        self.outsr = requestHandler.get_argument("outsr")  
+
+    def toString(self):
+        pass    
+
+
+class QueryResult:
+    def __init__(self,aliases,fields,features,layer_type):
+        self.aliases = aliases
+        self.fields = fields
+        self.features = features
+        self.type = layer_type 
+
+    def toString(self):
+        pass    
+
+
+
+
+
+
+
+
+def encodeAttr(val):
+    import datetime
+    from decimal import Decimal
+    if val is None:
+        return ""
+    elif isinstance(val,datetime.datetime):
+        return val.strftime("%Y-%m-%d %H:%M:%S")
+    elif isinstance(val,Decimal):
+        return float(str(val))
+    else:
+        return val

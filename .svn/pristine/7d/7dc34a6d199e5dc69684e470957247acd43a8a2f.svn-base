@@ -1,0 +1,7 @@
+{"content": {"engine":"oracle://gis:gis@172.16.60.35:1521/yhte",
+            "scheme_name":"T_POLICE",
+            "scheme_type":1,
+            "style": {"rule":{"filter":"[ID]%2==0 and [NAME].endwiths('路')",
+                              "symbol":{"color":"blue",
+                                        "width":3,
+                                        "alpha":100}}}}} 

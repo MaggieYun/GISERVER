@@ -1,0 +1,145 @@
+#coding=utf-8
+#author 许照云
+from store import *
+from cache import *
+import mapnik
+import dict4ini
+import os
+
+
+class Layer:
+    FEATURES = []
+
+    def __init__(self,pathname):
+        """
+        @ini:DictIni对象，有save等方法
+        """
+        ini = dict4ini.DictIni(pathname)
+        self.path = pathname
+        self.ini = ini
+
+        self.ini.layer = self #这样操作存在一个小的隐患：save时会修改配置文件的内容，但何时会出现调save方法的情况？
+
+        # self.ini.set_layer(self)
+
+        self.cache = TableCache(ini,self)
+        # self.cache.sync()  #这句代码必须放在上上句代码下面，否则没有self.ini.layer
+
+        # self.get_type()
+        self.geometryType = None
+
+    def get_type(self):
+        '''
+        获取layer的图层类型（点图层、线图层、面图层...）
+        该逻辑是否放在此处有待考虑？？？
+        '''
+        self.geometryType = self.FEATURES['features'][0]['geometry']['type']
+        print self.geometryType
+
+
+    @classmethod
+    def add_features(cls,features):
+        cls.FEATURES = { "type": "FeatureCollection","features":features}
+
+
+    def reload(self):
+        pass
+
+    def query(self,queryParameter):
+        
+        aliases,fields,features=self.cache.query(queryParameter)
+        
+        geometryType = self.geometryType 
+        
+        queryResult = QueryResult(aliases,fields,features,geometryType)
+        
+        return queryResult
+
+
+    def export(self,queryParameter,size):
+
+        self.cache.query(queryParameter)
+        bbox = queryParameter.bbox
+        m = mapnik.Map(size[0],size[1])
+        styles = self.ini.styles
+        keys = styles.keys()
+        path = os.path.splitext(self.path)
+
+        for key in keys:  #现修改配置项方式，所有layer都在一个xml中，所以keys的长度始终未1
+            xmlpath = os.path.join(path[0],styles.get(key))
+            mapnik.load_map(m, xmlpath)
+
+            from mapnik import Ogr, Layer, PostGIS
+            if (self.ini.database.dbname != 'postgresql'):
+                datasource = Ogr(layer='OGRGeoJSON',string=str(self.FEATURES)) 
+            else:
+                # temp = self.ini.database.port.split(':')
+                datasource = PostGIS(host=self.ini.database.host,
+                                    port =self.ini.database.port,
+                                    user=self.ini.database.user,
+                                    password=self.ini.database.psw,
+                                    dbname=self.ini.database.name,
+                                    table=self.ini.scheme_name,
+                                    extent=bbox)
+                                    # extent='your_extent')
+    
+            # print m.layers[0].name
+            # print m.layers[0].styles[0]
+            m.layers[0].datasource = datasource
+            extent = mapnik.Box2d(bbox[0],bbox[1],bbox[2],bbox[3])
+            m.zoom_to_box(extent) 
+
+            im = mapnik.Image(m.width,m.height)
+            mapnik.render(m, im)
+            mapnik.render_to_file(m,'test4.png', 'png')
+
+
+        return im
+
+
+class QueryParameter:
+    def __init__(self,bbox,where,insr,outfields,outsr):
+        self.bbox = bbox
+        self.where = where
+        self.insr = insr
+        self.outfields = outfields.split(",")
+        self.outsr = outsr
+
+    @classmethod
+    def create(cls,requestHandler):
+        self.layer = requestHandler.get_argument("layer")
+        self.bbox = requestHandler.get_argument("bbox")
+        self.where = requestHandler.get_argument("where",'1=1')
+        self.insr = requestHandler.get_argument("insr")
+        self.outfields = requestHandler.get_argument("outfields")
+        self.outsr = requestHandler.get_argument("outsr")  
+
+    def toString(self):
+        pass    
+
+
+class QueryResult:
+    def __init__(self,aliases,fields,features,layer_type):
+        self.aliases = aliases
+        self.fields = fields
+        self.features = features
+        self.type = layer_type 
+
+    def toString(self):
+        result = {"aliases":self.aliases,
+                 "fields":self.fields,
+                 "features":self.features,
+                 "type":self.type}  
+        return str(result)  
+
+    def fetch(self,rule):
+        pass    
+
+
+
+
+
+
+
+
+

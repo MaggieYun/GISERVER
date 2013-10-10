@@ -1,0 +1,6 @@
+{"content": {"engine":"oracle://gis:gis@172.16.60.35:1521/yhte",
+            "scheme_name":"V_TASK_POINT",
+            "scheme_type":0,
+            "style": {"rule":{"filter":"[ID]%2==0",
+                              "symbol":{"icon":"resources/images/icon1.png",
+                                        "size":[24,24]}}}}}

@@ -1,0 +1,17 @@
+{"content": {"engine":"oracle://gis:gis@172.16.60.35:1521/yhte",
+            "scheme_name":"V_TASK_POINT",
+            "scheme_type":0,
+            "x_field":"TASK_POINT_LONGITUDE",
+            "y_field":"TASK_POINT_LATITUDE",
+            "p_field":"TASK_POINT_ID",
+            "aliases":{"TASK_POINT_ID":"ID",
+                       "TASK_POINT_NAME":"NAME",
+                       "TASK_POINT_LONGITUDE":"LONGITUDE",
+                       "TASK_POINT_LATITUDE":"LATITUDE",
+                       "TASK_POINT_PASS_TIME":"TIME",
+                       "TASK_PATH_LINE":"PATH"
+                       },
+            "style": {"rule":{"filter":"[ID]%2==0 and [NAME].endwiths('站')",
+                              "symbol":{"color":"blue",
+                                        "width":3,
+                                        "alpha":100}}}}} 

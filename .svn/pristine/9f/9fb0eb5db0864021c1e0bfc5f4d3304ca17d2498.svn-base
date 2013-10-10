@@ -1,0 +1,6 @@
+{"content": {"engine":"oracle://",
+            "scheme_name":"T_POLICE_POINT_TASK",
+            "scheme_type":"table",
+            "style": {"rule":{"filter":"[ID]%2==0",
+                              "symbol":{"icon":"resources\\images\\icon2.png",
+                                        "size":[24,24]}}}}} 

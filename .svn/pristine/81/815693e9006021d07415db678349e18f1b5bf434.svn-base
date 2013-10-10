@@ -1,0 +1,126 @@
+#coding=utf-8
+from store import *
+from cache import *
+from style import *
+import Image
+class Layer:
+    GRAPHICS = []
+
+    def __init__(self,definition):
+        
+        self.definition = definition
+        self.definition.set_layer(self)
+        self.cache = TableCache(definition)
+        self.cache.sync()  #这句代码必须放在上上句代码下面，否则没有self.definition.layer
+
+        self.get_type()
+
+    def get_type(self):
+        '''
+        获取layer的图层类型（点图层、线图层、面图层...）
+        该逻辑是否放在此处有待考虑？？？
+        '''
+        if isinstance(self.definition.style.rule[0].symbol,PointSymbol):
+            self.definition.geometryType = "point"
+        if isinstance(self.definition.style.rule[0].symbol,LineSymbol):
+            self.definition.geometryType = "line"  
+
+    @classmethod
+    def add_graphics(cls,graphics):
+        cls.GRAPHICS = graphics
+
+    
+    def reload(self):
+        pass
+
+    def query(self,queryParameter):
+        
+        aliases,fields,features,export_results=self.cache.query(queryParameter)
+        geometryType = self.definition.geometryType 
+        
+        queryResult = QueryResult(aliases,fields,features,geometryType)
+        
+        return queryResult
+
+
+    def export(self,queryParameter,size):
+
+        results = self.cache.query(queryParameter)[3]
+        results = set(results)   #将列表类型转化为字典类型，方便集合运运算
+        img = Image.new("RGBA",size,(255,255,255,0))  
+
+        rules = self.definition.style.rule
+        bbox = queryParameter.bbox
+        
+        scale=size[0]/(bbox[2]-bbox[0])    #该次export的比例尺
+        
+        rule_left = filter(lambda x:x.filter is None,rules)
+        rule_first = filter(lambda x:x.filter is not None,rules)
+
+        for rule in rule_first:
+            f = rule.filter   #样式的过滤条件
+            symbol = rule.symbol   #对应条件的样式格式
+            result = set(filter(f,results))   #取子集
+            results = results.difference(result)  #results-result
+            # print results
+            for ele in result:
+                # print ele.attributes.get("TASK_POINT_ID")
+                img = symbol.draw(ele,scale,bbox,img)
+        
+        # print results    #剩余部分
+        f = rule_left[0].filter
+        symbol = rule_left[0].symbol
+        for ele in results:
+            # print ele.attributes.get("TASK_POINT_ID")
+            img = symbol.draw(ele,scale,bbox,img)
+
+        return img
+        
+    def toScreen(self):
+        pass
+
+    def toGemtry(self):
+        pass
+
+class QueryParameter:
+    def __init__(self,bbox,where,insr,outfields,outsr):
+        self.bbox = bbox
+        self.where = where
+        self.insr = insr
+        self.outfields = outfields.split(",")
+        self.outsr = outsr
+
+    @classmethod
+    def create(cls,requestHandler):
+        self.layer = requestHandler.get_argument("layer")
+        self.bbox = requestHandler.get_argument("bbox")
+        self.where = requestHandler.get_argument("where",None)
+        self.insr = requestHandler.get_argument("insr")
+        self.outfields = requestHandler.get_argument("outfields")
+        self.outsr = requestHandler.get_argument("outsr")  
+
+    def toString(self):
+        pass    
+
+
+class QueryResult:
+    def __init__(self,aliases,fields,features,layer_type):
+        self.aliases = aliases
+        self.fields = fields
+        self.features = features
+        self.type = layer_type 
+
+    def toString(self):
+        pass    
+
+    def fetch(self,rule):
+        pass    
+
+
+
+
+
+
+
+
+
