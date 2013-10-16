@@ -16,9 +16,9 @@ class Validation():
     TABLE_VIEW_SQL_SPATIAL = "select * from %s"  #查询表或视图不用区分
     PRIMARY_SQL_SPATIAL = "select pg_constraint.conname as pk_name from pg_constraint  inner join pg_class on pg_constraint.conrelid = pg_class.oid where pg_class.relname = '%s' and pg_constraint.contype='p'" 
     #表
-    TABLE_COLUMN_SQL_SPATIAL = "select column_name from information_schema.columns WHERE table_name = '%s'"  
+    TABLE_COLUMN_SQL_SPATIAL = "select column_name from information_schema.columns WHERE table_name = '%s'"  #以后表名全部大写
     #视图 该语句有待验证
-    VIEW_COLUMN_SQL_SPATIAL = "select column_name from information_schema.columns WHERE view_name = '%s'"  
+    VIEW_COLUMN_SQL_SPATIAL = "select column_name from information_schema.columns WHERE view_name = '%s'"  #以后表名全部大写
 
 
 

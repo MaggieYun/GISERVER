@@ -1,5 +1,5 @@
 scheme_name = viwpt
-scheme_type = 0
+scheme_type = 1
 g_field = geom
 p_field = roadname
 

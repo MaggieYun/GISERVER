@@ -28,7 +28,14 @@ class queryHandler(tornado.web.RequestHandler):
 
 
         format = self.get_argument('format','GEOJSON')
-        result = layer1.query(queryParameter,format)
+        queryResult = layer1.query(queryParameter,format)
+
+        #返回数据是json和geojson的区别
+        try:
+            result = queryResult.toString()
+        except:
+            import json  #注意layer.FEATURES是字典对象
+            result = json.dumps(queryResult)
 
 
         callback = self.get_argument('callback',None)
@@ -36,7 +43,6 @@ class queryHandler(tornado.web.RequestHandler):
             self.write(result)
         else:
             self.write('%s(%s)'%(callback,result))
-        # self.write(result)
 
 
     post = get  

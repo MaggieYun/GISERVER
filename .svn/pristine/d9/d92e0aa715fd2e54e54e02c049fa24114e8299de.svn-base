@@ -50,6 +50,7 @@ class Layer:
         self.cache.sync(queryParameter)
         
         if(format == "JSON"):
+            print format
             try:
                 aliases,fields,features=self.cache.toJSON(queryParameter)
                 queryResult = QueryResult(aliases,fields,features,self.geometryType,self.cache.bufferArea)
@@ -138,12 +139,12 @@ class QueryParameter:
         try:  #export请求时有的参数
             #bbox是以逗号分隔的四个数值  
             bbox = map(lambda x:float(x),requestHandler.get_argument("geometry").split(","))
-            # print "bbox____________"
+            print "bbox____________"
             queryParameter = QueryParameter(bbox,where,insr,outfields,outsr,0,spatialRel) 
         except:  #query请求时参数
             #geometry是wkt字符串对象  
             geometry = requestHandler.get_argument("geometry")
-            # print "geometry____________"
+            print "geometry____________"
             distance = float(requestHandler.get_argument('buffer',0))  #缓冲距离
             # print "distance_________", distance
             #默认全部取出？？还是缓存的？？

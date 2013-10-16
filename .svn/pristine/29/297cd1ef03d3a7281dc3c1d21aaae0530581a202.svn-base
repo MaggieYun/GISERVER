@@ -190,21 +190,21 @@
     map.addLayer({
       url: 'http://localhost:6666/giserver2013/configs/2/',
       where : "gid>100",
-      // where:"roadname='东大街'",
-      outfields:"GID,ID,roadname,roadid,roadtype,SOURCE"
+      // where:"'roadname=东大街",
+      outfields:"GID,ID,roadname,roadid,roadtype,SOURCE",
       // outfields:'*',
-      // format:'JSON'
+      format:'JSON'
     });
 
     map.addLayer({
       url: 'http://localhost:6666/giserver2013/configs/1/',
       // where : "TASK_POINT_ID<30",
       where:"TASK_POINT_NAME LIKE '%站%'", 
-      outfields:"TASK_POINT_NAME,task_point_SEQ_NO"
+      outfields:"TASK_POINT_NAME,task_point_SEQ_NO",
       // outfields:"TASK_POINT_NAME,TASK_POINT_SEQ_NO",
       // outfields:"TASK_POINT_NAME,TASK_ID,TASK_POINT_PASS_TIME,TASK_POINT_ID,TASK_POINT_SEQ_NO,TASK_POINT_LONGITUDE,TASK_POINT_LATITUDE",
       // outfields:'*',
-      // format: 'JSON'
+      format: 'JSON'
     });
 
 
