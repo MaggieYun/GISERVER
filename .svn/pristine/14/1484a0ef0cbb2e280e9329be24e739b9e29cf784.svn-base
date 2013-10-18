@@ -38,16 +38,11 @@
   $(function(){
     //设置地区 320500为苏州 
     //设置坐标系 PGIS or gmap
-    // GeoSetup.setLocation('320500','PGIS');
+    GeoSetup.setLocation('320500','PGIS');
     
     //注意前缀「pgis@」标识底图类型
-    // var base_url = 'pgis@http://172.16.64.24:8888/tiles';
+    var base_url = 'pgis@http://172.16.64.24:8888/tiles';
 
-    GeoSetup.setLocation('320500','GMAP');
-    
-    MAP_SR = '102113';
-    var base_url ='gmap@http://172.16.60.32:9000/rest/pub/1/tile';
-    
     var map = $('#mapDiv').iMap({
       bases: [base_url],
       extent: GeoSetup.getExtent()//获取地图范围

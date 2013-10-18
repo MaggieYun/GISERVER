@@ -22,10 +22,10 @@
         
         //OpenLayers.Map对象引用
         this.map = map = new Ol.Map(dom, {
-            layers: layers,
-            projection: "EPSG:"+MAP_SR
+            layers: layers/*,
+            projection: "EPSG:"+MAP_SR*/
         });
-
+        
         map.zoomToExtent(extent); // 地图范围
         
         this.clientLayer = new Ol.Layer.Vector("client",{displayInLayerSwitcher:false});

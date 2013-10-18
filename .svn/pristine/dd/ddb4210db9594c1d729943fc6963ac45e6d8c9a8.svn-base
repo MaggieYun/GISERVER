@@ -1,0 +1,42 @@
+<Map srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
+  <Style name="My Style">
+
+    <Rule>
+      <Filter>[name]='canglangqu'</Filter>
+      <PolygonSymbolizer fill="#c7e9b4" fill-opacity='0.5'/>
+      <LineSymbolizer stroke="black" stroke-width="0.1" />
+      <TextSymbolizer size="10" fill="white" face-name="DejaVu Sans Book" halo-fill="#2E2F39" halo-radius="1" wrap-width="20">[name]</TextSymbolizer>
+    </Rule>
+    <Rule>
+      <Filter>[name]='gongyeyuanqu'</Filter>
+      <PolygonSymbolizer fill="#225ea8" fill-opacity='0.5' />
+      <LineSymbolizer stroke="black" stroke-width="0.1" />
+      <TextSymbolizer size="10" fill="white" face-name="DejaVu Sans Book" halo-fill="#2E2F39" halo-radius="1" wrap-width="20">[name]</TextSymbolizer>
+    </Rule>
+    <Rule>
+      <Filter>[name]='jinchangqu'</Filter>
+      <PolygonSymbolizer fill="#41b6c3" fill-opacity='0.5'/>
+      <LineSymbolizer stroke="black" stroke-width="0.1" />
+      <TextSymbolizer size="10" fill="white" face-name="DejaVu Sans Book" halo-fill="#2E2F39" halo-radius="1" wrap-width="20">[name]</TextSymbolizer>
+    </Rule>
+    <Rule>
+      <Filter>[name]='wuzhongqu'</Filter>
+      <PolygonSymbolizer fill="#122F7F" fill-opacity='0.5'/>
+      <LineSymbolizer stroke="black" stroke-width="0.1" />
+      <TextSymbolizer size="10" fill="white" face-name="DejaVu Sans Book" halo-fill="#2E2F39" halo-radius="1" wrap-width="20">[name]</TextSymbolizer>
+    </Rule>
+
+    <Rule>
+      <ElseFilter/>
+      <PolygonSymbolizer fill="#1d91c0" fill-opacity='0.5'/>
+      <LineSymbolizer stroke="black" stroke-width="0.1" />
+      <TextSymbolizer size="10" fill="white" face-name="DejaVu Sans Book" halo-fill="#2E2F39" halo-radius="1" wrap-width="20">[name]</TextSymbolizer>
+    </Rule>
+
+  </Style>
+
+  <Layer name="world" status="on" srs="+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext +over +no_defs">
+    <StyleName>My Style</StyleName>
+  </Layer>
+
+</Map>

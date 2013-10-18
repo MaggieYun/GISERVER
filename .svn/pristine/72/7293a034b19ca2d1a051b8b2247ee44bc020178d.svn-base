@@ -4,7 +4,6 @@ from extent import *
 import copy
 
 from validation import *
-from tools import *
 
 
 class TableCache(object):
@@ -15,11 +14,8 @@ class TableCache(object):
     SQL = "SELECT %s FROM %s WHERE %s"
 
     BASEGEOSQL = "SELECT ST_AsGeoJSON(%s),%s FROM %s WHERE %s(ST_GeomFromText(%s),%s) AND %s"
-    TRANSGEOSQL = "SELECT ST_AsGeoJSON(ST_Transform(ST_SetSRID(%s,%s),%s)),%s FROM %s WHERE %s(ST_GeomFromText(%s),%s) AND %s"
 
     GETBUFFER = "SELECT ST_AsText(ST_Buffer(ST_GeomFromText(%s),%f))"
-
-    SPATIAL_TRANSFORM = "SELECT ST_AsText(ST_Transform(ST_GeomFromText(%s,%s),%s))"
 
 
     def __init__(self,ini,layer):
@@ -49,26 +45,21 @@ class TableCache(object):
         distance = queryParameter.distance 
         spatialRel = queryParameter.spatialRel
         geometry = queryParameter.geometry
-        insr = queryParameter.insr
-        outsr = queryParameter.outsr
-        
-        if(insr == '4326'):
-            distance = distance*0.0000106 
         
 
 
         if self.ini.x_field:
-            features = self.sync_xy(conn,where,outfields,distance,spatialRel,geometry,insr,outsr)
+            features = self.sync_xy(conn,where,outfields,distance,spatialRel,geometry)
             
         elif self.ini.g_field:           
-            features = self.sync_spatial(conn,where,outfields,distance,spatialRel,geometry,insr,outsr)
+            features = self.sync_spatial(conn,where,outfields,distance,spatialRel,geometry)
 
         self.layer.add_features(features)
         self.layer.get_type()
 
         return self.layer.FEATURES
 
-    def sync_xy(self,conn,where,outfields,distance,spatialRel,geometry,insr,outsr):
+    def sync_xy(self,conn,where,outfields,distance,spatialRel,geometry):
 
         #outfields为'*'或者为任意字段的组合（经纬度字段可有可无）
         if(outfields[0] != '*'):
@@ -92,35 +83,15 @@ class TableCache(object):
         import shapely
         from shapely.wkt import dumps, loads
         from shapely.geometry import Point,Polygon
-        # from shapely.geometry import *
 
         if(type(geometry)==list):
             extent = Extent(geometry)      #bbox
             polygon = loads(extent.toWKT()) #extentText多了一对引号
         else:
-            polygon = loads(geometry) #可以是任意geometry,并非一定是多边形
+            polygon = loads(geometry)
             if(distance): #则表示polygon可能不是多边形
-                polygon = polygon.buffer(distance)  
+                polygon = polygon.buffer(distance)
                 self.bufferArea = dumps(polygon)
-
-        #转换db中点的坐标，若outsr与insr不同，总共需要把所有点转换两次
-        
-        #因为polygon对象可能是shapely.geometry中的任意对象，比如环线，线等，转换不方便
-
-        #如果polygon不是Polygon对象，以下方法要增加判断
-        # print type(polygon)
-        # x = list(polygon.exterior.coords)
-        # y = []
-        # for ele in x:
-        #     temp = toMerctor(ele[0],ele[1])
-        #     y.append(temp)
-        # polygon1 = Polygon(y)
-        # print polygon1
-
-
-        #所以：转换db中的点要素
-
-
 
         shapelyRelationships = {
                 "contains":"polygon.contains(point)",
@@ -135,22 +106,9 @@ class TableCache(object):
         for item in results:                            
             x = item.get(self.ini.x_field,0)
             y = item.get(self.ini.y_field,0)
-            
-            if(self.ini.dbsr != insr): #坐标转换
-                if(insr == '4326'):
-                    x,y = toLonLat(x,y)
-                if(insr == '102113'):
-                    x,y = toMerctor(x,y)
-
             point = Point(x, y)
 
             if(eval(functionStr)):
-                if(insr != outsr):
-                    if (outsr == '4326'):
-                        x,y = toLonLat(x,y)
-                    if (outsr == '102113'):
-                        x,y = toMerctor(x,y)
-
                 shape=[x,y]     #x,y对应经纬度
                 item.pop(self.ini.x_field)         
                 item.pop(self.ini.y_field)
@@ -162,17 +120,10 @@ class TableCache(object):
         return features
 
     
-    def sync_spatial(self,conn,where,outfields,distance,spatialRel,geometry,insr,outsr):
-        if (self.ini.dbsr == 102113):
-            dbsr = '3857'
-        else:
-            dbsr = self.ini.dbsr
+    def sync_spatial(self,conn,where,outfields,distance,spatialRel,geometry):
 
-        if(insr == '102113'):
-            insr = '3857'
-        if(outsr == '102113'):
-            outsr = '3857'
-        
+        #outfields为'*',或者一定要包含空间字段
+
         if(outfields[0] == '*'):
             if (self.ini.scheme_type == 0):
                 columns = conn.execute(self.validation.TABLE_COLUMN_SQL_SPATIAL%self.ini.scheme_name)
@@ -198,9 +149,7 @@ class TableCache(object):
             buffer_sql = self.GETBUFFER%(extentText,distance)
             self.bufferArea = str(conn.execute(buffer_sql).fetchall()[0][0])
             extentText = "'%s'"%self.bufferArea
-
-        if(dbsr != insr): #坐标转换
-            extentText = "'%s'"%conn.execute(self.SPATIAL_TRANSFORM%(extentText,insr,dbsr)).fetchall()[0][0]
+        #以下这句代码，需重新考虑和验证outfields="*"的情况
         
         postgisRelationships = {
             "contains":"ST_Contains",
@@ -213,27 +162,15 @@ class TableCache(object):
 
         relation = postgisRelationships.get(spatialRel)
 
-        if(dbsr != outsr): #坐标转换
-            spatial_query_sql = self.TRANSGEOSQL%(
-                                        self.ini.g_field,
-                                        dbsr,
-                                        outsr,
-                                        outfields,
-                                        self.ini.scheme_name,
-                                        relation,
-                                        extentText,
-                                        self.ini.g_field,
-                                        where)
-        else:
-            spatial_query_sql = self.BASEGEOSQL%(
-                                self.ini.g_field,
-                                outfields,
-                                self.ini.scheme_name,
-                                relation,
-                                extentText,
-                                self.ini.g_field,
-                                where)
-
+        spatial_query_sql = self.BASEGEOSQL%(
+                            self.ini.g_field,
+                            outfields,
+                            self.ini.scheme_name,
+                            relation,
+                            extentText,
+                            self.ini.g_field,
+                            where)
+        
         results = conn.execute(spatial_query_sql)
         records = results.fetchall()#获取数据所有记录
         conn.close()#关闭数据库连接,将connection放回连接池
@@ -350,3 +287,20 @@ class TableCache(object):
 
         
         return aliases,fields,features
+
+
+def encodeAttr(val):
+    import datetime
+    from decimal import Decimal
+    if val is None:
+        return ""
+    elif isinstance(val,datetime.datetime):
+        return val.strftime("%Y-%m-%d %H:%M:%S")
+    elif isinstance(val,datetime.date):
+        return val.strftime("%Y-%m-%d")
+    elif isinstance(val,Decimal):
+        return float(str(val))
+    elif isinstance(val,unicode):
+        return val.encode('utf-8')
+    else:
+        return val  

@@ -4,7 +4,6 @@ from extent import *
 import copy
 
 from validation import *
-from tools import *
 
 
 class TableCache(object):
@@ -52,9 +51,6 @@ class TableCache(object):
         insr = queryParameter.insr
         outsr = queryParameter.outsr
         
-        if(insr == '4326'):
-            distance = distance*0.0000106 
-        
 
 
         if self.ini.x_field:
@@ -92,35 +88,30 @@ class TableCache(object):
         import shapely
         from shapely.wkt import dumps, loads
         from shapely.geometry import Point,Polygon
-        # from shapely.geometry import *
 
         if(type(geometry)==list):
             extent = Extent(geometry)      #bbox
             polygon = loads(extent.toWKT()) #extentText多了一对引号
         else:
-            polygon = loads(geometry) #可以是任意geometry,并非一定是多边形
+            polygon = loads(geometry)
             if(distance): #则表示polygon可能不是多边形
-                polygon = polygon.buffer(distance)  
+                polygon = polygon.buffer(distance)
                 self.bufferArea = dumps(polygon)
 
-        #转换db中点的坐标，若outsr与insr不同，总共需要把所有点转换两次
-        
-        #因为polygon对象可能是shapely.geometry中的任意对象，比如环线，线等，转换不方便
+        # if(self.ini.dbsr != insr): #坐标转换
+        #     from functools import partial
+        #     import pyproj
+        #     if(insr == '4326'):
+                
+        #     if(insr == '102113'):
+                
 
-        #如果polygon不是Polygon对象，以下方法要增加判断
-        # print type(polygon)
-        # x = list(polygon.exterior.coords)
-        # y = []
-        # for ele in x:
-        #     temp = toMerctor(ele[0],ele[1])
-        #     y.append(temp)
-        # polygon1 = Polygon(y)
-        # print polygon1
+        #         project = partial(
+        #             pyproj.transform,
+        #             pyproj.Proj(init='espg:4326'),
+        #             pyproj.Proj(init='epsg:26913'))
 
-
-        #所以：转换db中的点要素
-
-
+                # g2 = transform(project, g1)
 
         shapelyRelationships = {
                 "contains":"polygon.contains(point)",
@@ -135,22 +126,9 @@ class TableCache(object):
         for item in results:                            
             x = item.get(self.ini.x_field,0)
             y = item.get(self.ini.y_field,0)
-            
-            if(self.ini.dbsr != insr): #坐标转换
-                if(insr == '4326'):
-                    x,y = toLonLat(x,y)
-                if(insr == '102113'):
-                    x,y = toMerctor(x,y)
-
             point = Point(x, y)
 
             if(eval(functionStr)):
-                if(insr != outsr):
-                    if (outsr == '4326'):
-                        x,y = toLonLat(x,y)
-                    if (outsr == '102113'):
-                        x,y = toMerctor(x,y)
-
                 shape=[x,y]     #x,y对应经纬度
                 item.pop(self.ini.x_field)         
                 item.pop(self.ini.y_field)
@@ -350,3 +328,20 @@ class TableCache(object):
 
         
         return aliases,fields,features
+
+
+def encodeAttr(val):
+    import datetime
+    from decimal import Decimal
+    if val is None:
+        return ""
+    elif isinstance(val,datetime.datetime):
+        return val.strftime("%Y-%m-%d %H:%M:%S")
+    elif isinstance(val,datetime.date):
+        return val.strftime("%Y-%m-%d")
+    elif isinstance(val,Decimal):
+        return float(str(val))
+    elif isinstance(val,unicode):
+        return val.encode('utf-8')
+    else:
+        return val  

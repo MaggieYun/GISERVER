@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>点、线要素综合</title>
+  <title>线要素图层</title>
   <style>
     #mapDiv{
       width: 800px;
@@ -38,43 +38,34 @@
   $(function(){
     //设置地区 320500为苏州 
     //设置坐标系 PGIS or gmap
-    // GeoSetup.setLocation('320500','PGIS');
+    GeoSetup.setLocation('320500','PGIS');
     
     //注意前缀「pgis@」标识底图类型
-    // var base_url = 'pgis@http://172.16.64.24:8888/tiles';
+    var base_url = 'pgis@http://172.16.64.24:8888/tiles';
 
-    GeoSetup.setLocation('320500','GMAP');
-    
-    MAP_SR = '102113';
-    var base_url ='gmap@http://172.16.60.32:9000/rest/pub/1/tile';
-    
     var map = $('#mapDiv').iMap({
       bases: [base_url],
       extent: GeoSetup.getExtent()//获取地图范围
     });
 
-    // 'http://localhost:6666/giserver2013/query?where=gid>10&inSR=4326&outSR=4326&bbox='
-    // 'http://localhost:6666/giserver2013/query?where=[TASK_POINT_ID]<30&inSR=4326&outSR=4326&bbox='
 
-    // map.clientLayer.styleMap = new OpenLayers.StyleMap(
-    //           OpenLayers.Util.extend(
-    //               OpenLayers.Util.extend({},
-    //                   OpenLayers.Feature.Vector.style['default']), 
-    //                     {
-    //                       fillOpacity: 1,  
-    //                       fillColor: "green"
-    //                     }));
-
-   /* urlprefix = 'http://localhost:6666/giserver2013/configs/2/query?where=gid>10&inSR=4326&outSR=4326&outfields=GID,ID,roadname,roadid,roadtype,shape_len,updatetime,source&spatialRel=contains&geometry='
-
-    urlprefix2 = 'http://localhost:6666/giserver2013/configs/1/query?where=TASK_POINT_ID>30&inSR=4326&outSR=4326&spatialRel=contains&geometry='
-
-    urlprefix3 = 'http://localhost:6666/giserver2013/configs/1/query?where=TASK_POINT_ID<30&inSR=4326&outSR=4326&spatialRel=intersects&geometry='
-
-    urlprefix4 = 'http://localhost:6666/giserver2013/configs/2/query?where=gid>10&inSR=4326&outSR=4326&outfields=GID,ID,roadname,roadid,roadtype,shape_len,updatetime,source&spatialRel=intersects&geometry='
-
-   // urlprefix = 'http://localhost:6666/giserver2013/query?where=1=1&inSR=4326&outSR=4326&outfields=TASK_PATH_LINE,TASK_POINT_NAME,TASK_ID,TASK_POINT_PASS_TIME,TASK_POINT_ID,TASK_POINT_SEQ_NO,TASK_POINT_LONGITUDE,TASK_POINT_LATITUDE&geometry='
     
+
+    map.addLayer({
+      url: 'http://172.16.64.59:6666/giserver2013/configs/polygon/',
+      where:'1=1'
+    });
+    
+    map.addLayer({
+      url: 'http://172.16.64.59:6666/giserver2013/configs/g_road/',
+      where : "1=1"/*,
+      outfields:"objectid,road_name"*/
+    });
+
+
+    /*urlprefix = 'http://localhost:6666/giserver2013/configs/g_road/query?where=1=1&inSR=4326&outSR=4326&outfields=objectid,road_name&spatialRel=contains&geometry='
+
+    urlprefix2 = 'http://localhost:6666/giserver2013/configs/g_road/query?where=1=1&inSR=4326&outSR=4326&outfields=objectid,road_name&spatialRel=intersects&geometry='
 
 
     var SelectFeatureCtl = 
@@ -95,7 +86,6 @@
                         var geojson = new OpenLayers.Format.GeoJSON();
                         var features = geojson.read(data);
                         map.clientLayer.addFeatures(features);
-                        
                     }
               });
           }
@@ -109,7 +99,7 @@
       featureAdded : function(feature){
         var geometry = feature.geometry;
         $.ajax({
-                    url: urlprefix2 + geometry.toString() + '&buffer='+buffer,
+                    url: urlprefix + geometry.toString() + '&buffer='+buffer,
                     dataType:'JSONP',
                     // context: this,
                     success: function(data){
@@ -138,7 +128,7 @@
           map.clientLayer.removeAllFeatures();
           var geometry = feature.geometry;
           $.ajax({
-                      url: urlprefix3 + geometry.toString() + '&buffer='+buffer,
+                      url: urlprefix2 + geometry.toString() + '&buffer='+buffer,
                       // url: urlprefix4 + geometry.toString() + '&buffer='+buffer,
                       dataType:'JSONP',
                       // context: this,
@@ -150,23 +140,10 @@
                           //缓冲区不做处理
                       }
           });
-          $.ajax({
-                      // url: urlprefix3 + geometry.toString() + '&buffer='+buffer,
-                      url: urlprefix4 + geometry.toString() + '&buffer='+buffer,
-                      dataType:'JSONP',
-                      // context: this,
-                      success: function(data){
-                          var geojson = new OpenLayers.Format.GeoJSON();
-                          var features = geojson.read(data);
-                          //为保证最多选取一个对象，此处简化，以后的优化可以将选出的点再做比较
-                          map.clientLayer.addFeatures(features[0]);
-                          //缓冲区不做处理
-                      }
-          });
+          
         }
-      });*/
+      });
 
-/*
     map.map.addControls([SelectFeatureCtl,drawLineCtl,drawPointCtl]);
     $("#activate").click(function(){
       map.clientLayer.removeAllFeatures();
@@ -190,29 +167,8 @@
       SelectFeatureCtl.deactivate();
       drawPointCtl.activate();
 
-    });*/
-
-
-    map.addLayer({
-      url: 'http://localhost:6666/giserver2013/configs/2/',
-      where : "gid>100"
-      // where:"roadname='东大街'",
-      // outfields:"GID,ID,roadname,roadid,roadtype,SOURCE"
-      // outfields:'*',
-      // format:'JSON'
     });
-
-    map.addLayer({
-      url: 'http://localhost:6666/giserver2013/configs/1/',
-      // where : "TASK_POINT_ID<30",
-      where:"TASK_POINT_NAME LIKE '%站%'", 
-      // outfields:"TASK_POINT_NAME,task_point_SEQ_NO"
-      // outfields:"TASK_POINT_NAME,TASK_POINT_SEQ_NO",
-      outfields:"TASK_POINT_NAME,TASK_ID,TASK_POINT_PASS_TIME,TASK_POINT_ID,TASK_POINT_SEQ_NO,TASK_POINT_LONGITUDE,TASK_POINT_LATITUDE"
-      // outfields:'*',
-      // format: 'JSON'
-    });
-
+*/
 
 
   });

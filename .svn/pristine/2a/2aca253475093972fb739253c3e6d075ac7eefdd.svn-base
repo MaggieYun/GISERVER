@@ -67,10 +67,15 @@ OpenLayers.Control.DyLayerSelect = OpenLayers.Class(
                                                                                     feature.style);                          
                                 self.map.viewPortDiv.style.cursor = 'pointer';
                                 if(!feature.lonlat){
-                                    var centroid = feature.geometry.getCentroid();  //点要素也统一处理
-                                    feature.lonlat = new OpenLayers.LonLat([centroid.x,centroid.y]);
-                                    self.currentFeature.guid = centroid.x + '-' + centroid.y;
-                     
+                                    if(feature.geometry.CLASS_NAME == "OpenLayers.Geometry.Point"){
+                                        feature.lonlat = new OpenLayers.LonLat([feature.geometry.x, feature.geometry.y]);
+                                        self.currentFeature.guid = feature.geometry.x + '-' + feature.geometry.y;
+                                    }else{
+                                        var centroid = feature.geometry.getCentroid();
+                                        feature.lonlat = new OpenLayers.LonLat([centroid.x,centroid.y]);
+                                        self.currentFeature.guid = centroid.x + '-' + centroid.y;
+                               
+                                    }  
                                 }
                                 var pixel = self.map.getPixelFromLonLat(feature.lonlat);
                                 self.tip.style.left = (pixel.x + 10) + 'px';
@@ -93,9 +98,7 @@ OpenLayers.Control.DyLayerSelect = OpenLayers.Class(
             
             this.map.events.triggerEvent('feature:click', {feature: ft});
 
-            var centroid = ft.geometry.getCentroid(); 
-            var guid = centroid.x + '-' + centroid.y;
-
+            var guid = ft.guid;
             var exsit = this.layer.getFeatureBy('guid',guid);
             
             if(exsit){
@@ -171,9 +174,6 @@ OpenLayers.Control.ExSelectFeature2 = OpenLayers.Class(
                             var features = geojson.read(data);
                             features.forEach(function(feature){
                                 feature.style = OpenLayers.Feature.Vector.style['SELECT'];
-
-                                var centroid = feature.geometry.getCentroid();  //点要素也统一处理
-                                feature.guid = centroid.x + '-' + centroid.y;
                             });
                             self.resultLayer.addFeatures(features);
                         }
@@ -192,9 +192,6 @@ OpenLayers.Control.ExSelectFeature2 = OpenLayers.Class(
                             var features = geojson.read(data);
                             features.forEach(function(feature){
                                 feature.style = OpenLayers.Feature.Vector.style['SELECT'];
-
-                                var centroid = feature.geometry.getCentroid();  //点要素也统一处理
-                                feature.guid = centroid.x + '-' + centroid.y;
                             });
                             self.resultLayer.addFeatures(features);
                         }

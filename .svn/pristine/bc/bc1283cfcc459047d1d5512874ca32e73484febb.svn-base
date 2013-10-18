@@ -350,3 +350,20 @@ class TableCache(object):
 
         
         return aliases,fields,features
+
+
+# def encodeAttr(val):
+#     import datetime
+#     from decimal import Decimal
+#     if val is None:
+#         return ""
+#     elif isinstance(val,datetime.datetime):
+#         return val.strftime("%Y-%m-%d %H:%M:%S")
+#     elif isinstance(val,datetime.date):
+#         return val.strftime("%Y-%m-%d")
+#     elif isinstance(val,Decimal):
+#         return float(str(val))
+#     elif isinstance(val,unicode):
+#         return val.encode('utf-8')
+#     else:
+#         return val  

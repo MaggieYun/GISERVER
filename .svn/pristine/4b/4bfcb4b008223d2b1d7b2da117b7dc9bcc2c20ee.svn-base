@@ -2,7 +2,6 @@ scheme_name = g_road
 scheme_type = 0
 g_field = shape
 p_field = objectid
-dbsr = 4326
 
 [database]
 dbname = postgresql
@@ -18,6 +17,4 @@ OBJECTID = ID
 
 [styles]
 style = layer_g_road.xml
-
-
 

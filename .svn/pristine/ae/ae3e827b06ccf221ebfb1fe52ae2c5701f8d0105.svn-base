@@ -52,7 +52,7 @@ OpenLayers.Control.DyLayerSelect = OpenLayers.Class(
                     var layer = self.targets[j];
 
                     var url = layer.queryURL + '&spatialRel=intersects&geometry='
-                            + geometry.toString() + '&buffer=100';
+                            + geometry.toString() + '&buffer=0.001';
 
                     $.ajax({
                         url: url,
@@ -60,25 +60,21 @@ OpenLayers.Control.DyLayerSelect = OpenLayers.Class(
                         success: function(data){ 
                             var features = geojson.read(data);
                             if (features[0]){
-                                var feature = features[0]; //该处只做简单处理，可优化
+                                var feature = features[0];
                                 feature.style = OpenLayers.Feature.Vector.style['SELECT'];
-                                self.currentFeature = new OpenLayers.Feature.Vector(feature.geometry,
-                                                                                    feature.attributes,
-                                                                                    feature.style);                          
                                 self.map.viewPortDiv.style.cursor = 'pointer';
+                                //feature不一定是点要素，因此以下逻辑需进一步处理
                                 if(!feature.lonlat){
-                                    var centroid = feature.geometry.getCentroid();  //点要素也统一处理
-                                    feature.lonlat = new OpenLayers.LonLat([centroid.x,centroid.y]);
-                                    self.currentFeature.guid = centroid.x + '-' + centroid.y;
-                     
+                                    feature.lonlat = new OpenLayers.LonLat([feature.geometry.x, feature.geometry.y]);
                                 }
                                 var pixel = self.map.getPixelFromLonLat(feature.lonlat);
+                                self.currentFeature = new OpenLayers.Feature.Vector(feature.geometry,feature.attributes);
+                                self.currentFeature.style = OpenLayers.Feature.Vector.style['SELECT'];
+                                self.currentFeature.guid = feature.geometry.x + '-' + feature.geometry.y;
                                 self.tip.style.left = (pixel.x + 10) + 'px';
                                 self.tip.style.top = (pixel.y - 10) + 'px';
                                 self.tip.innerHTML = feature.attributes.TIP||'空';
                                 self.tip.style.display = 'block';
-
-                                //线、面要素的tip显示在鼠标附近是否更佳？
                             }
                             
                         }
@@ -92,18 +88,19 @@ OpenLayers.Control.DyLayerSelect = OpenLayers.Class(
             if(!ft) return;
             
             this.map.events.triggerEvent('feature:click', {feature: ft});
-
-            var centroid = ft.geometry.getCentroid(); 
-            var guid = centroid.x + '-' + centroid.y;
-
+            
+            var guid = ft.geometry.x + '-' + ft.geometry.y;
+            
             var exsit = this.layer.getFeatureBy('guid',guid);
             
             if(exsit){
                 this.layer.removeFeatures([exsit]);
-                return;
+                // return;
             }
-            this.layer.addFeatures([ft]);
             
+            if(ft){
+                this.layer.addFeatures([ft]);
+            }
         },
         
         activate: function(){
@@ -129,8 +126,7 @@ OpenLayers.Control.DyLayerSelect = OpenLayers.Class(
 OpenLayers.Control.ExSelectFeature2 = OpenLayers.Class(
     OpenLayers.Control.Panel, {
 
-    buffer: 500,
-    isBufferDraw:false,//表示缓冲区是否绘制
+    buffer: 0.005,
     initialize: function(layer,options) {
         OpenLayers.Control.Panel.prototype.initialize.apply(this, [options]);
         
@@ -147,37 +143,31 @@ OpenLayers.Control.ExSelectFeature2 = OpenLayers.Class(
             layer.removeAllFeatures();
             layer.addFeatures([event.feature],{silent:true});
 
-            this.isBufferDraw = false;
             var feature = event.feature;
             var geometry = feature.geometry;
+            // console.log(geometry);
+
 
             var geojson = new OpenLayers.Format.GeoJSON();
             var self = this;
 
             if(geometry.CLASS_NAME == "OpenLayers.Geometry.LineString"){
                 this.targets.forEach(function(layer){
-                    var url = layer.queryURL + '&spatialRel=intersects&geometry='
+                    var url = layer.queryURL + '&spatialRel=contains&geometry='
                             + geometry.toString() + '&buffer='+self.buffer ;
                     $.ajax({
                         url: url,
                         dataType:'JSONP',
                         success: function(data){
-                            if(!self.isBufferDraw){ //确保多个动态图层，但缓冲区只绘制一遍。
-                                bufferFeature = new OpenLayers.Format.WKT().read(data.bufferArea);
-                                self.resultLayer.addFeatures([bufferFeature]); 
-                                self.isBufferDraw = true;
-                            }
-                            
+                            var bufferFeature = new OpenLayers.Format.WKT().read(data.bufferArea);
+                            self.resultLayer.addFeatures([bufferFeature]); 
                             var features = geojson.read(data);
                             features.forEach(function(feature){
                                 feature.style = OpenLayers.Feature.Vector.style['SELECT'];
-
-                                var centroid = feature.geometry.getCentroid();  //点要素也统一处理
-                                feature.guid = centroid.x + '-' + centroid.y;
                             });
                             self.resultLayer.addFeatures(features);
                         }
-                    });   
+                    });
                 });
                 
 
@@ -192,9 +182,6 @@ OpenLayers.Control.ExSelectFeature2 = OpenLayers.Class(
                             var features = geojson.read(data);
                             features.forEach(function(feature){
                                 feature.style = OpenLayers.Feature.Vector.style['SELECT'];
-
-                                var centroid = feature.geometry.getCentroid();  //点要素也统一处理
-                                feature.guid = centroid.x + '-' + centroid.y;
                             });
                             self.resultLayer.addFeatures(features);
                         }
