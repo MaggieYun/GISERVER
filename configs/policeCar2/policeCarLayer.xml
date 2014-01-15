@@ -1,0 +1,34 @@
+<Map srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
+  <Style name="My Style">
+    <Rule>
+      <Filter>[EQUIP_TYPE] = "1" and [STATUS] = "1"</Filter>
+      <PointSymbolizer file="../../resources/images/car_b.png" width="8" height="8" type="png" />
+    </Rule>
+    <Rule>
+      <Filter>[EQUIP_TYPE] = "1" and [STATUS] = "2"</Filter>
+      <PointSymbolizer file="../../resources/images/car_r.png" width="8" height="8" type="png" />
+    </Rule>
+    <Rule>
+      <Filter>[EQUIP_TYPE] = "1" and [STATUS] = "3"</Filter>
+      <PointSymbolizer file="../../resources/images/car_y.png" width="8" height="8" type="png" />
+    </Rule>
+
+    <Rule>
+      <Filter>[EQUIP_TYPE] = "2" and [STATUS] = "1"</Filter>
+      <PointSymbolizer file="../../resources/images/cycle_b.png" width="8" height="8" type="png" />
+    </Rule>
+    <Rule>
+      <Filter>[EQUIP_TYPE] = "2" and [STATUS] = "2"</Filter>
+      <PointSymbolizer file="../../resources/images/cycle_r.png" width="8" height="8" type="png" />
+    </Rule>
+    <Rule>
+      <Filter>[EQUIP_TYPE] = "2" and [STATUS] = "3"</Filter>
+      <PointSymbolizer file="../../resources/images/cycle_y.png" width="8" height="8" type="png" />
+    </Rule>
+  </Style>
+
+  <Layer name="My Layer" srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
+    <StyleName>My Style</StyleName>
+  </Layer>
+
+</Map>

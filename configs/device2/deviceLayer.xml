@@ -1,0 +1,31 @@
+<Map srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
+  <Style name="My Style">
+    <Rule>  <!-- 暂且不管设备状态[DEVICE_TYPE] 信号控制机 视频摄像机 诱导显示屏 电子警察 卡口-->
+      <Filter>[DEVICE_STATUS] = '1'</Filter> <!-- 正常 -->
+      <PointSymbolizer file="../../resources/images/blue.png" width="8" height="8" type="png" />
+    </Rule>
+    <Rule>
+      <Filter>[DEVICE_STATUS] = '2' </Filter> <!-- 故障 -->
+      <PointSymbolizer file="../../resources/images/point.png" width="8" height="8" type="png" />
+    </Rule>
+    <Rule>
+      <Filter>[DEVICE_STATUS] = '3' </Filter> <!-- 维修中 -->
+      <PointSymbolizer file="../../resources/images/orange.png" width="8" height="8" type="png" />
+    </Rule>
+    <Rule>
+      <Filter>[DEVICE_STATUS] = '4' </Filter> <!-- 已移除 -->
+      <PointSymbolizer file="../../resources/images/green.png" width="8" height="8" type="png" />
+    </Rule>
+    <Rule>
+      <Filter>[DEVICE_STATUS] = '5' </Filter> <!-- 已报废 -->
+      <PointSymbolizer file="../../resources/images/magenta.png" width="8" height="8" type="png" />
+    </Rule>
+
+    
+  </Style>
+
+  <Layer name="My Layer" srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
+    <StyleName>My Style</StyleName>
+  </Layer>
+
+</Map>

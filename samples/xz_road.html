@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>面要素图层</title>
+  <title>徐州路网</title>
   <style>
     #mapDiv{
       width: 800px;
@@ -14,6 +14,8 @@
 </head>
 <body>
   <div id="mapDiv"></div>
+
+
 </body>
 <script src="../libs/geoSetup.js"></script>
 <script src="../libs/jquery.js"></script>
@@ -28,63 +30,36 @@
 <script src="../libs/openlayers/iMap.js"></script>
 <script>
   $(function(){
-    //设置地区 320500为苏州 
-    //设置坐标系 PGIS or gmap
-    GeoSetup.setLocation('320500','PGIS');
-    // GeoSetup.setLocation('320683','PGIS');
-    MAP_SR = '4326';
-
+    
     //注意前缀「pgis@」标识底图类型
-    var base_url = 'pgis@http://172.16.64.24:8888/tiles';
+    var base_url = 'pgis@http://172.16.64.114:8888/tiles';
+
+    // GeoSetup.setLocation('320500','GMAP');
+    GeoSetup.setLocation('XZ','PGIS');
+    
+    MAP_SR = '4326';
 
     var map = $('#mapDiv').iMap({
       bases: [base_url],
       extent: GeoSetup.getExtent()//获取地图范围
     });
 
-
     map.addLayer({
-      url: 'http://localhost:6666/giserver2013/configs/polygon/',
+      url: 'http://localhost:6666/giserver2013/configs/xz_road/',
       where:'1=1'
     });
 
     map.addLayer({
-      url: 'http://localhost:6666/giserver2013/configs/testOra/',
+      url: 'http://localhost:6666/giserver2013/configs/xz_area/',
       where:'1=1'
     });
+
+    map.addLayer({
+      url: 'http://localhost:6666/giserver2013/configs/xz_outline/',
+      where:'1=1'
+    });
+
 
   });
 </script>
 </html>
-
-<!-- 120.551202,31.317633
-120.625941,31.2969
-120.579947,31.293938
-120.556951,31.309735
-120.621341,31.33244
-120.63284,31.25542
-120.684582,31.30085
-120.752422,31.317633
-120.616742,31.32553
-
-
-120.5604,31.370926
-120.635139,31.308748
-120.675383,31.326517
-120.739774,31.298875 -->
-
-<!-- 120.575348,31.229238
-120.623066,31.248011
-120.739774,31.314178
-
-120.623641,31.31171
-120.644913,31.359086
-120.553501,31.336881
-120.598345,31.30628
-120.658711,31.337868
-120.681707,31.329479
-
-120.620766,31.372406
-120.73,31.329479
-120.752997,31.31763
-120.46094,31.36747 -->

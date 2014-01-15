@@ -1,0 +1,20 @@
+<Map  srs="+proj=longlat +datum=WGS84 +no_defs">
+<!-- <Map  srs="+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext +over +no_defs"> -->
+  <Style name="Style">
+    <Rule>
+      <Filter>[refname] = '云龙区' or [refname] = '鼓楼区' or [refname] = '铜山区' or [refname] = '贾汪区' or [refname] = '泉山区'</Filter>
+      <LineSymbolizer stroke="black" stroke-width="2" stroke-opacity="1" stroke-linejoin="round"/>
+<!--       <TextSymbolizer size="10" fill="white" face-name="Microsoft YaHei Regular" halo-fill="#2E2F39" halo-radius="1" wrap-width="20" placement="line">[refname]</TextSymbolizer> -->
+    </Rule>
+    
+    <Rule>
+      <ElseFilter/>
+      <LineSymbolizer stroke="white" stroke-width="2" />
+    </Rule>
+  </Style>
+
+  <Layer name="xuzhouRoad" status="on" srs="+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext +over +no_defs">
+      <StyleName>Style</StyleName>
+  </Layer>
+
+</Map>

@@ -62,20 +62,23 @@ class Layer:
             return result
 
 
-    def export(self,queryParameter,size):
+    def export(self,queryParameter,size,extent):
         #1、第一次查询时，两次同步，效率低。缓存问题
         #2、export请求一般都在query请求之后
+
+        #3、经徐州项目，export特殊请求，增加extent参数，extent可能等于geometry
         
         
         where = queryParameter.where
 
-        geometry = queryParameter.geometry
+        geometry = queryParameter.geometry  #若geometry为wkt，不为四个数的list，则有问题
+
         m = mapnik.Map(size[0],size[1])
         styles = self.ini.styles
         keys = styles.keys()
         path = os.path.splitext(self.path)
 
-        for key in keys:  #现修改配置项方式，所有layer都在一个xml中，所以keys的长度始终未1
+        for key in keys:  #现修改配置项方式，所有layer都在一个xml中，所以keys的长度始终为1
             xmlpath = str(os.path.join(path[0],styles.get(key)))
             mapnik.load_map(m, xmlpath)
 
@@ -84,7 +87,7 @@ class Layer:
                 self.cache.sync(queryParameter) #同步数据
                 datasource = Ogr(layer='OGRGeoJSON',string=json.dumps(self.FEATURES)) 
             else:
-
+                #以下逻辑中未考虑到buffer问题，export出子图有问题
                 sql = "(SELECT * FROM %s WHERE %s) as %s"%(self.ini.scheme_name,
                                                             where,
                                                             self.ini.scheme_name)
@@ -97,13 +100,15 @@ class Layer:
                                     dbname=self.ini.database.name,
                                     # table=self.ini.scheme_name,
                                     table=subtable,
-                                    extent=geometry)
+                                    extent=geometry)  #是geometry or extent，尚未验证？？
                                        
             # print m.layers[0].name
             # print m.layers[0].styles[0]
             m.layers[0].datasource = datasource
-            extent = mapnik.Box2d(geometry[0],geometry[1],geometry[2],geometry[3])
-            m.zoom_to_box(extent) 
+
+            m_extent = mapnik.Box2d(extent[0],extent[1],extent[2],extent[3])
+
+            m.zoom_to_box(m_extent) 
 
             im = mapnik.Image(m.width,m.height)
             mapnik.render(m, im)

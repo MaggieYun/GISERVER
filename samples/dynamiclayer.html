@@ -41,156 +41,24 @@
     // GeoSetup.setLocation('320500','PGIS');
     
     //注意前缀「pgis@」标识底图类型
-    // var base_url = 'pgis@http://172.16.64.24:8888/tiles';
+    var base_url = 'pgis@http://172.16.64.24:8888/tiles';
 
-    GeoSetup.setLocation('320500','GMAP');
+    // GeoSetup.setLocation('320500','GMAP');
+    GeoSetup.setLocation('320683','PGIS');
     
-    MAP_SR = '102113';
-    var base_url ='gmap@http://172.16.60.32:9000/rest/pub/1/tile';
     
+    MAP_SR = '4326';
+    // var base_url ='gmap@http://172.16.60.32:9000/rest/pub/1/tile';
+
     var map = $('#mapDiv').iMap({
       bases: [base_url],
       extent: GeoSetup.getExtent()//获取地图范围
     });
 
-    // 'http://localhost:6666/giserver2013/query?where=gid>10&inSR=4326&outSR=4326&bbox='
-    // 'http://localhost:6666/giserver2013/query?where=[TASK_POINT_ID]<30&inSR=4326&outSR=4326&bbox='
-
-    // map.clientLayer.styleMap = new OpenLayers.StyleMap(
-    //           OpenLayers.Util.extend(
-    //               OpenLayers.Util.extend({},
-    //                   OpenLayers.Feature.Vector.style['default']), 
-    //                     {
-    //                       fillOpacity: 1,  
-    //                       fillColor: "green"
-    //                     }));
-
-   /* urlprefix = 'http://localhost:6666/giserver2013/configs/2/query?where=gid>10&inSR=4326&outSR=4326&outfields=GID,ID,roadname,roadid,roadtype,shape_len,updatetime,source&spatialRel=contains&geometry='
-
-    urlprefix2 = 'http://localhost:6666/giserver2013/configs/1/query?where=TASK_POINT_ID>30&inSR=4326&outSR=4326&spatialRel=contains&geometry='
-
-    urlprefix3 = 'http://localhost:6666/giserver2013/configs/1/query?where=TASK_POINT_ID<30&inSR=4326&outSR=4326&spatialRel=intersects&geometry='
-
-    urlprefix4 = 'http://localhost:6666/giserver2013/configs/2/query?where=gid>10&inSR=4326&outSR=4326&outfields=GID,ID,roadname,roadid,roadtype,shape_len,updatetime,source&spatialRel=intersects&geometry='
-
-   // urlprefix = 'http://localhost:6666/giserver2013/query?where=1=1&inSR=4326&outSR=4326&outfields=TASK_PATH_LINE,TASK_POINT_NAME,TASK_ID,TASK_POINT_PASS_TIME,TASK_POINT_ID,TASK_POINT_SEQ_NO,TASK_POINT_LONGITUDE,TASK_POINT_LATITUDE&geometry='
-    
-
-
-    var SelectFeatureCtl = 
-      new OpenLayers.Control.ExSelectFeature(map.clientLayer,{
-          types:[1],
-          persist:true,
-          multiple : false,
-          toggle : true,
-          clickout : false, // 默认为true
-          continuous : false,
-          onPolygonDone : function(geometry) {
-            $.ajax({
-                    url: urlprefix+ geometry.toString(),
-                    dataType:'JSONP',
-                    // context: this,
-                    success: function(data){
-                        map.clientLayer.removeAllFeatures();
-                        var geojson = new OpenLayers.Format.GeoJSON();
-                        var features = geojson.read(data);
-                        map.clientLayer.addFeatures(features);
-                        
-                    }
-              });
-          }
-
-      });
-
-
-    var drawLineCtl = new OpenLayers.Control.DrawFeature(map.clientLayer,
-      OpenLayers.Handler.Path, {
-      persist:true,
-      featureAdded : function(feature){
-        var geometry = feature.geometry;
-        $.ajax({
-                    url: urlprefix2 + geometry.toString() + '&buffer='+buffer,
-                    dataType:'JSONP',
-                    // context: this,
-                    success: function(data){
-                        map.clientLayer.removeAllFeatures();
-                        var geojson = new OpenLayers.Format.GeoJSON();
-                        var features = geojson.read(data);
-                        map.clientLayer.addFeatures(features);
-                        
-                        var bufferFeature = new OpenLayers.Format.WKT().read(data.bufferArea);
-
-                        var temp_style = OpenLayers.Util.extend({},
-                                OpenLayers.Feature.Vector.style['default']);
-                        var buffer_style = OpenLayers.Util.extend(temp_style, {
-                                    strokeDashstyle: "longdash"});
-                        bufferFeature.style = buffer_style;
-                        map.clientLayer.addFeatures([bufferFeature]);   
-                    }
-              });
-          }
-      });
-
-      var drawPointCtl = new OpenLayers.Control.DrawFeature(map.clientLayer,
-        OpenLayers.Handler.Point, {
-        persist:true,
-        featureAdded : function(feature){
-          map.clientLayer.removeAllFeatures();
-          var geometry = feature.geometry;
-          $.ajax({
-                      url: urlprefix3 + geometry.toString() + '&buffer='+buffer,
-                      // url: urlprefix4 + geometry.toString() + '&buffer='+buffer,
-                      dataType:'JSONP',
-                      // context: this,
-                      success: function(data){
-                          var geojson = new OpenLayers.Format.GeoJSON();
-                          var features = geojson.read(data);
-                          //为保证最多选取一个对象，此处简化，以后的优化可以将选出的点再做比较（前台？后台？）
-                          map.clientLayer.addFeatures(features[0]);
-                          //缓冲区不做处理
-                      }
-          });
-          $.ajax({
-                      // url: urlprefix3 + geometry.toString() + '&buffer='+buffer,
-                      url: urlprefix4 + geometry.toString() + '&buffer='+buffer,
-                      dataType:'JSONP',
-                      // context: this,
-                      success: function(data){
-                          var geojson = new OpenLayers.Format.GeoJSON();
-                          var features = geojson.read(data);
-                          //为保证最多选取一个对象，此处简化，以后的优化可以将选出的点再做比较
-                          map.clientLayer.addFeatures(features[0]);
-                          //缓冲区不做处理
-                      }
-          });
-        }
-      });*/
-
-/*
-    map.map.addControls([SelectFeatureCtl,drawLineCtl,drawPointCtl]);
-    $("#activate").click(function(){
-      map.clientLayer.removeAllFeatures();
-      drawPointCtl.deactivate();
-      drawLineCtl.deactivate();
-      SelectFeatureCtl.activate(1);
-    });
-
-    $("#linebuffer").click(function(){
-      buffer = $("#buffer").val();
-      map.clientLayer.removeAllFeatures();
-      drawPointCtl.deactivate();
-      SelectFeatureCtl.deactivate();
-      drawLineCtl.activate();
-    });
-
-    $("#selectpoint").click(function(){
-      buffer = 0.0005;
-      map.clientLayer.removeAllFeatures();
-      drawLineCtl.deactivate();
-      SelectFeatureCtl.deactivate();
-      drawPointCtl.activate();
-
-    });*/
+    // map.addLayer({
+    //   url: 'http://localhost:6666/giserver2013/configs/testOra/',
+    //   where:'1=2'
+    // });
 
 
     map.addLayer({
@@ -202,15 +70,27 @@
       // format:'JSON'
     });
 
-    map.addLayer({
-      url: 'http://localhost:6666/giserver2013/configs/1/',
-      // where : "TASK_POINT_ID<30",
-      where:"TASK_POINT_NAME LIKE '%站%'", 
-      // outfields:"TASK_POINT_NAME,task_point_SEQ_NO"
-      // outfields:"TASK_POINT_NAME,TASK_POINT_SEQ_NO",
-      outfields:"TASK_POINT_NAME,TASK_ID,TASK_POINT_PASS_TIME,TASK_POINT_ID,TASK_POINT_SEQ_NO,TASK_POINT_LONGITUDE,TASK_POINT_LATITUDE"
-      // outfields:'*',
-      // format: 'JSON'
+    // map.addLayer({
+    //   url: 'http://localhost:6666/giserver2013/configs/1/',
+    //   // where : "TASK_POINT_ID<30",
+    //   where:"TASK_POINT_NAME LIKE '%站%'", 
+    //   // outfields:"TASK_POINT_NAME,task_point_SEQ_NO"
+    //   // outfields:"TASK_POINT_NAME,TASK_POINT_SEQ_NO",
+    //   outfields:"TASK_POINT_NAME,TASK_ID,TASK_POINT_PASS_TIME,TASK_POINT_ID,TASK_POINT_SEQ_NO,TASK_POINT_LONGITUDE,TASK_POINT_LATITUDE"
+    //   // outfields:'*',
+    //   // format: 'JSON'
+    // });
+
+    var getHtml = function(feature){
+      html = feature.attributes.TASK_POINT_NAME;
+      return html;  //可返回任意html内容
+    };
+
+    map.bind('feature:click',function(e,event){ //在要素单击事件下弹出tip框
+        var feature = event.feature;
+        // console.log(feature.attributes);
+        map.showTip(feature, getHtml(feature)); //showTip方法第2个参数接受任意html
+
     });
 
 

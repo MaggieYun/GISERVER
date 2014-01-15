@@ -30,7 +30,6 @@ class queryHandler(tornado.web.RequestHandler):
         format = self.get_argument('format','GEOJSON')
         result = layer1.query(queryParameter,format)
 
-
         callback = self.get_argument('callback',None)
         if callback is None:
             self.write(result)
@@ -47,25 +46,78 @@ class exportHandler(tornado.web.RequestHandler):
     def get(self,layersPath,layerPath):
         print u"export获取参数"
 
-        layersPath = os.path.join(dirpath,layersPath)
-        layerPath = layerPath+'.ini'
+        try:
+            layersPath = os.path.join(dirpath,layersPath)
+            layerPath = layerPath+'.ini'
 
-        layerFactory = LayerFactory(layersPath)
-        layer1 = layerFactory.createLayer(layerPath)
+            layerFactory = LayerFactory(layersPath)
+            layer1 = layerFactory.createLayer(layerPath)
 
+            size = map(lambda x:int(x),self.get_argument("size").split(","))
 
-        size = map(lambda x:int(x),self.get_argument("size").split(","))
-        queryParameter = QueryParameter.create(self)
+            extent = map(lambda x:float(x),self.get_argument("extent").split(",")) #新增参数
 
-        layerFactory = LayerFactory(layersPath)
-        layer1 = layerFactory.createLayer(layerPath)
-        im=layer1.export(queryParameter,size)
+            queryParameter = QueryParameter.create(self)
 
-        imstr = im.tostring("png")
-        self.set_header("Content-Type", "image/png")
-        self.write(imstr)
+            layerFactory = LayerFactory(layersPath)
+            layer1 = layerFactory.createLayer(layerPath)
+            
+            im=layer1.export(queryParameter,size,extent)
+
+            imstr = im.tostring("png")
+            self.set_header("Content-Type", "image/png")
+            self.write(imstr)
+
+        except:
+            print '程序异常'
+            import Image
+            import cStringIO
+
+            size = map(lambda x:int(x),self.get_argument("size").split(","))
+            im=Image.new("RGBA",(size[0],size[1]),(0,0,0,0))
+            io = cStringIO.StringIO()
+            im.save(io, "PNG")
+            self.set_header("Content-Type", "image/png")
+            self.write(io.getvalue())
+
 
     post = get  
+
+
+# class appendHandler(tornado.web.RequestHandler):
+
+#     def get(self,layersPath,layerPath):
+#         print u"export获取参数"
+
+#         layersPath = os.path.join(dirpath,layersPath)
+#         layerPath = layerPath+'.ini'
+
+#         layerFactory = LayerFactory(layersPath)
+#         layer1 = layerFactory.createLayer(layerPath)
+
+
+#         size = map(lambda x:int(x),self.get_argument("size").split(","))
+#         queryParameter = QueryParameter.create(self)
+
+#         layerFactory = LayerFactory(layersPath)
+#         layer1 = layerFactory.createLayer(layerPath)
+#         im=layer1.export(queryParameter,size)
+
+#         imstr = im.tostring("png")
+#         self.set_header("Content-Type", "image/png")
+#         self.write(imstr)
+
+#     post = get  
+
+
+#     def append(self, **kwargs):
+#         raise NotImplementedError
+    
+#     def remove(self, **kwargs):
+#         raise NotImplementedError
+    
+#     def update(self, **kwargs):
+#         raise NotImplementedError
 
 
 

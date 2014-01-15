@@ -1,0 +1,29 @@
+<Map srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
+  <Style name="My Style">
+    <Rule>
+      <Filter>[STATUS] = "3" </Filter>
+      <PointSymbolizer file="../../resources/images/police_y.png" width="8" height="8" type="png" />
+    </Rule>
+
+    <Rule>
+      <Filter>[STATUS] = "1" </Filter>
+      <PointSymbolizer file="../../resources/images/police_b.png" width="8" height="8" type="png" />
+    </Rule>
+
+    <Rule>
+      <Filter>[STATUS] = "2" </Filter>
+      <PointSymbolizer file="../../resources/images/police_r.png" width="8" height="8" type="png" />
+    </Rule>
+
+    <Rule>
+      <ElseFilter/>
+      <PointSymbolizer file="../../resources/images/police_g.png" width="8" height="8" type="png" />
+    </Rule>
+    
+  </Style>
+
+  <Layer name="My Layer" srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
+    <StyleName>My Style</StyleName>
+  </Layer>
+
+</Map>

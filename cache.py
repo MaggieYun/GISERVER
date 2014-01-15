@@ -54,8 +54,6 @@ class TableCache(object):
         
         if(insr == '4326'):
             distance = distance*0.0000106 
-        
-
 
         if self.ini.x_field:
             features = self.sync_xy(conn,where,outfields,distance,spatialRel,geometry,insr,outsr)
@@ -86,7 +84,6 @@ class TableCache(object):
 
         self.keys = map(lambda key:str(key.upper()),results.keys())
         results = map(lambda vals:dict(zip(self.keys,map(encodeAttr,vals))),records)
-
         features = []
         gtype = "point"
         import shapely
@@ -94,7 +91,9 @@ class TableCache(object):
         from shapely.geometry import Point,Polygon
         # from shapely.geometry import *
 
-        if(type(geometry)==list):
+        if(geometry == 'global'):  #空间数据库尚且不允许该geometry参数
+            polygon = geometry   #请求任意坐标数据(任意合法或不合法坐标数据)
+        elif(type(geometry)==list):
             extent = Extent(geometry)      #bbox
             polygon = loads(extent.toWKT()) #extentText多了一对引号
         else:
@@ -131,20 +130,27 @@ class TableCache(object):
 
             }
         functionStr = shapelyRelationships.get(spatialRel)
-        
-        for item in results:                            
+
+        for item in results: 
+ 
             x = item.get(self.ini.x_field,0)
             y = item.get(self.ini.y_field,0)
-            
-            if(self.ini.dbsr != insr): #坐标转换
+
+            if(type(x) == str): #数据库中为空字符串
+                x,y = 0,0
+
+            if(self.ini.dbsr != int(insr)): #坐标转换
                 if(insr == '4326'):
-                    x,y = toLonLat(x,y)
+                    try:          #此处有问题，有待进一步解决
+                        x,y = toLonLat(x,y)
+                    except:
+                        continue
                 if(insr == '102113'):
                     x,y = toMerctor(x,y)
 
             point = Point(x, y)
 
-            if(eval(functionStr)):
+            if(polygon == 'global' or (eval(functionStr))): #or左右的参数不能调换顺序
                 if(insr != outsr):
                     if (outsr == '4326'):
                         x,y = toLonLat(x,y)

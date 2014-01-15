@@ -26,3 +26,9 @@ inSR
 outSR
 geometry： 即传统意义的bbox参数，是bbox的扩展。可以为bbox（4个参数，两对坐标组成的数组）；可以为wkt标准的		geometry对象。
 
+
+！！！geometry特殊说明，因徐州项目，态势监控页面，表单数据利用地图服务query请求数据，为了取出数据库中任意合法或不合法的地理数据，给geometry参数增加了一个'global'合法参数值，该参数只在普通数据库中有效。
+
+buffer 单位为米
+
+7、export请求比query请求多2个参数：size和extent(bbox),如果请求时的geometry不为wkt，则extent参数与geometry参数相同。
