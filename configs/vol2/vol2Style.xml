@@ -1,0 +1,36 @@
+<Map srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
+
+  <Style name="My Style">
+    <Rule>
+      <Filter>[DEVICE_TYPE_ID] = 5</Filter>
+      <PointSymbolizer file="../../resources/images/snc-n.png" width="8" height="8" type="png" />
+    </Rule>
+    <Rule>
+      <Filter>[DEVICE_TYPE_ID] = 6</Filter>
+      <PointSymbolizer file="../../resources/images/snc-n.png" width="8" height="8" type="png" />
+    </Rule>
+    <Rule>
+      <Filter>[DEVICE_TYPE_ID] = 7</Filter>
+      <PointSymbolizer file="../../resources/images/vvd30.png" width="8" height="8" type="png" />
+    </Rule>
+    <Rule>
+      <Filter>[DEVICE_TYPE_ID] = 8</Filter>
+      <PointSymbolizer file="../../resources/images/igate-n.png" width="8" height="8" type="png" />
+    </Rule>
+    <Rule>
+      <Filter>[DEVICE_TYPE_ID] = 9</Filter>
+      <PointSymbolizer file="../../resources/images/leida30.png" width="8" height="8" type="png" />
+    </Rule>
+
+    <Rule>
+      <ElseFilter/>
+      <PointSymbolizer file="../../resources/images/accept.png" width="8" height="8" type="png" />
+    </Rule>
+    
+  </Style>
+
+  <Layer name="My Layer" srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
+    <StyleName>My Style</StyleName>
+  </Layer>
+
+</Map>

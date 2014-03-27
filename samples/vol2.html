@@ -33,7 +33,7 @@
     MAP_SR = '4326';
 
     //注意前缀「pgis@」标识底图类型
-    var base_url = 'pgis@http://172.16.64.24:8888/tiles';
+    var base_url = 'pgis@http://172.16.60.46:6666/rest/pub/1/tiles';
 
     var map = $('#mapDiv').iMap({
       bases: [base_url],
@@ -45,10 +45,10 @@
       where : "1=1"
     });
 
-    map.addLayer({
-      url: 'http://127.0.0.1:6666/giserver2013/configs/g_road/',
-      where : "1=1"
-    });
+    // map.addLayer({
+    //   url: 'http://127.0.0.1:6666/giserver2013/configs/g_road/',
+    //   where : "1=1"
+    // });
 
   });
 </script>

@@ -1,7 +1,7 @@
 <Map srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
   <Style name="My Style">
     <Rule>
-      <Filter>[STATUS] = "3" </Filter>
+      <Filter>[STATUS] = "2" </Filter>
       <PointSymbolizer file="../../resources/images/police_y.png" width="8" height="8" type="png" />
     </Rule>
 
@@ -11,7 +11,7 @@
     </Rule>
 
     <Rule>
-      <Filter>[STATUS] = "2" </Filter>
+      <Filter>[STATUS] = "0" </Filter>
       <PointSymbolizer file="../../resources/images/police_r.png" width="8" height="8" type="png" />
     </Rule>
 

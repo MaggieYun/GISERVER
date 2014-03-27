@@ -4,13 +4,13 @@
     <Rule>
       <Filter>[type_name] = '国道省道'</Filter>
       <LineSymbolizer stroke="#1ea13b" stroke-width="2" stroke-opacity="1" stroke-linejoin="round"/>
-      <TextSymbolizer size="10" fill="white" face-name="Microsoft YaHei Regular" halo-fill="#2E2F39" halo-radius="1" wrap-width="20" placement="line">[name]</TextSymbolizer>
+  <!--     <TextSymbolizer size="10" fill="white" face-name="Microsoft YaHei Regular" halo-fill="#2E2F39" halo-radius="1" wrap-width="20" placement="line">[name]</TextSymbolizer> -->
     </Rule>
     <Rule>
       <Filter>[type_name] = '主干道'</Filter>
       <LineSymbolizer stroke="#5CB85C" stroke-width="1.5" />
       <LineSymbolizer stroke="red" stroke-width="0.5" />
-      <TextSymbolizer size="10" fill="white" face-name="Microsoft YaHei Regular" halo-fill="#2E2F39" halo-radius="1" wrap-width="20" placement="line">[name]</TextSymbolizer>
+<!--       <TextSymbolizer size="10" fill="white" face-name="Microsoft YaHei Regular" halo-fill="#2E2F39" halo-radius="1" wrap-width="20" placement="line">[name]</TextSymbolizer> -->
     </Rule>
     <Rule>
       <Filter>[type_name] = '高速'</Filter>
@@ -23,13 +23,13 @@
      <Rule>
       <Filter>[type_name] = '次干道'</Filter>
       <LineSymbolizer stroke="#e8dfc0" stroke-width="0.8" />
-      <TextSymbolizer size="10" fill="white" face-name="Microsoft YaHei Regular" halo-fill="#2E2F39" halo-radius="1" wrap-width="20" placement="line">[name]</TextSymbolizer>
+<!--       <TextSymbolizer size="10" fill="white" face-name="Microsoft YaHei Regular" halo-fill="#2E2F39" halo-radius="1" wrap-width="20" placement="line">[name]</TextSymbolizer> -->
     </Rule>
 
     <Rule>
       <ElseFilter/>
       <LineSymbolizer stroke="#F0AD4E" stroke-width="2" />
-      <TextSymbolizer size="10" fill="white" face-name="Microsoft YaHei Regular" halo-fill="#2E2F39" halo-radius="1" wrap-width="20" placement="line">[name]</TextSymbolizer>
+   <!--    <TextSymbolizer size="10" fill="white" face-name="Microsoft YaHei Regular" halo-fill="#2E2F39" halo-radius="1" wrap-width="20" placement="line">[name]</TextSymbolizer> -->
     </Rule>
   </Style>
 

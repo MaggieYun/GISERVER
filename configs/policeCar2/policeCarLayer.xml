@@ -1,29 +1,29 @@
 <Map srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
   <Style name="My Style">
     <Rule>
-      <Filter>[EQUIP_TYPE] = "1" and [STATUS] = "1"</Filter>
-      <PointSymbolizer file="../../resources/images/car_b.png" width="8" height="8" type="png" />
+      <Filter>[TYPE] = "1" and [STATUS] = "1"</Filter>
+      <PointSymbolizer file="../../resources/images/map_icons/police_car/car_b.png" width="8" height="8" type="png" />
     </Rule>
     <Rule>
-      <Filter>[EQUIP_TYPE] = "1" and [STATUS] = "2"</Filter>
-      <PointSymbolizer file="../../resources/images/car_r.png" width="8" height="8" type="png" />
+      <Filter>[TYPE] = "1" and [STATUS] = "0"</Filter>
+      <PointSymbolizer file="../../resources/images/map_icons/pc/car_r.png" width="8" height="8" type="png" />
     </Rule>
     <Rule>
-      <Filter>[EQUIP_TYPE] = "1" and [STATUS] = "3"</Filter>
-      <PointSymbolizer file="../../resources/images/car_y.png" width="8" height="8" type="png" />
+      <Filter>[TYPE] = "1" and [STATUS] = "2"</Filter>
+      <PointSymbolizer file="../../resources/images/map_icons/pc/car_y.png" width="8" height="8" type="png" />
     </Rule>
 
     <Rule>
-      <Filter>[EQUIP_TYPE] = "2" and [STATUS] = "1"</Filter>
-      <PointSymbolizer file="../../resources/images/cycle_b.png" width="8" height="8" type="png" />
+      <Filter>[TYPE] = "2" and [STATUS] = "1"</Filter>
+      <PointSymbolizer file="../../resources/images/map_icons/pc/cycle_g.png" width="8" height="8" type="png" />
     </Rule>
     <Rule>
-      <Filter>[EQUIP_TYPE] = "2" and [STATUS] = "2"</Filter>
-      <PointSymbolizer file="../../resources/images/cycle_r.png" width="8" height="8" type="png" />
+      <Filter>[TYPE] = "2" and [STATUS] = "0"</Filter>
+      <PointSymbolizer file="../../resources/images/map_icons/pc/cycle_r.png" width="8" height="8" type="png" />
     </Rule>
     <Rule>
-      <Filter>[EQUIP_TYPE] = "2" and [STATUS] = "3"</Filter>
-      <PointSymbolizer file="../../resources/images/cycle_y.png" width="8" height="8" type="png" />
+      <Filter>[TYPE] = "2" and [STATUS] = "2"</Filter>
+      <PointSymbolizer file="../../resources/images/map_icons/pc/cycle_y.png" width="8" height="8" type="png" />
     </Rule>
   </Style>
 

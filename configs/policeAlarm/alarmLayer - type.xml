@@ -1,0 +1,89 @@
+<Map srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
+  <Style name="My Style">
+    <Rule>
+      <MaxScaleDenominator>139770</MaxScaleDenominator>
+      <Filter>[STATUS] = "1" and [PTASK_TYPE] = "1"</Filter> <!-- 未调度 -->
+      <PointSymbolizer file="../../resources/images/map_icons/alarm/jtsg_1.png" width="8" height="8" type="png" />
+    </Rule>
+    <Rule>
+      <MaxScaleDenominator>139770</MaxScaleDenominator>
+      <Filter>[STATUS] = "1" and [PTASK_TYPE] = "2"</Filter> 
+      <PointSymbolizer file="../../resources/images/map_icons/alarm/jtyd_1.png" width="8" height="8" type="png" />
+    </Rule>
+    <Rule>
+      <MaxScaleDenominator>139770</MaxScaleDenominator>
+      <Filter>[STATUS] = "1" and [PTASK_TYPE] = "3"</Filter> 
+      <PointSymbolizer file="../../resources/images/map_icons/alarm/jtgz_1.png" width="8" height="8" type="png" />
+    </Rule>
+    <Rule>
+      <MaxScaleDenominator>139770</MaxScaleDenominator>
+      <Filter>[STATUS] = "1" and [PTASK_TYPE] = "4"</Filter>
+      <PointSymbolizer file="../../resources/images/map_icons/alarm/jcbk_1.png" width="8" height="8" type="png" />
+    </Rule>
+    <Rule>
+      <MaxScaleDenominator>139770</MaxScaleDenominator>
+      <Filter>[STATUS] = "1" and [PTASK_TYPE] = "5"</Filter> 
+      <PointSymbolizer file="../../resources/images/map_icons/alarm/clwf_1.png" width="8" height="8" type="png" />
+    </Rule>
+
+
+    <Rule>
+      <MaxScaleDenominator>139770</MaxScaleDenominator>
+      <Filter>[STATUS] = "2" and [PTASK_TYPE] = "1"</Filter>
+      <PointSymbolizer file="../../resources/images/map_icons/alarm/jtsg_2.png" width="8" height="8" type="png" />
+    </Rule>
+    <Rule>
+      <MaxScaleDenominator>139770</MaxScaleDenominator>
+      <Filter>[STATUS] = "2" and [PTASK_TYPE] = "2"</Filter> 
+      <PointSymbolizer file="../../resources/images/map_icons/alarm/jtyd_2.png" width="8" height="8" type="png" />
+    </Rule>
+    <Rule>
+      <MaxScaleDenominator>139770</MaxScaleDenominator>
+      <Filter>[STATUS] = "2" and [PTASK_TYPE] = "3"</Filter> 
+      <PointSymbolizer file="../../resources/images/map_icons/alarm/jtgz_2.png" width="8" height="8" type="png" />
+    </Rule>
+    <Rule>
+      <MaxScaleDenominator>139770</MaxScaleDenominator>
+      <Filter>[STATUS] = "2" and [PTASK_TYPE] = "4"</Filter> 
+      <PointSymbolizer file="../../resources/images/map_icons/alarm/jcbk_2.png" width="8" height="8" type="png" />
+    </Rule>
+    <Rule>
+      <MaxScaleDenominator>139770</MaxScaleDenominator>
+      <Filter>[STATUS] = "2" and [PTASK_TYPE] = "5"</Filter>
+      <PointSymbolizer file="../../resources/images/map_icons/alarm/clwf_2.png" width="8" height="8" type="png" />
+    </Rule>
+
+    <Rule>
+      <MaxScaleDenominator>139770</MaxScaleDenominator>
+      <Filter>[STATUS] = "3" and [PTASK_TYPE] = "1"</Filter>
+      <PointSymbolizer file="../../resources/images/map_icons/alarm/jtsg_3.png" width="8" height="8" type="png" />
+    </Rule>
+    <Rule>
+      <MaxScaleDenominator>139770</MaxScaleDenominator>
+      <Filter>[STATUS] = "3" and [PTASK_TYPE] = "2"</Filter>
+      <PointSymbolizer file="../../resources/images/map_icons/alarm/jtyd_3.png" width="8" height="8" type="png" />
+    </Rule>
+    <Rule>
+      <MaxScaleDenominator>139770</MaxScaleDenominator>
+      <Filter>[STATUS] = "3" and [PTASK_TYPE] = "3"</Filter> 
+      <PointSymbolizer file="../../resources/images/map_icons/alarm/jtgz_3.png" width="8" height="8" type="png" />
+    </Rule>
+    <Rule>
+      <MaxScaleDenominator>139770</MaxScaleDenominator>
+      <Filter>[STATUS] = "3" and [PTASK_TYPE] = "4"</Filter> 
+      <PointSymbolizer file="../../resources/images/map_icons/alarm/jcbk_3.png" width="8" height="8" type="png" />
+    </Rule>
+    <Rule>
+      <MaxScaleDenominator>139770</MaxScaleDenominator>
+      <Filter>[STATUS] = "3" and [PTASK_TYPE] = "5"</Filter>
+      <PointSymbolizer file="../../resources/images/map_icons/alarm/clwf_3.png" width="8" height="8" type="png" />
+    </Rule>
+
+    
+  </Style>
+
+  <Layer name="My Layer" srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
+    <StyleName>My Style</StyleName>
+  </Layer>
+
+</Map>

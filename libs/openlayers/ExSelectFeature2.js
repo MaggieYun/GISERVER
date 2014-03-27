@@ -51,8 +51,10 @@ OpenLayers.Control.DyLayerSelect = OpenLayers.Class(
                 for(var j=0,l = self.targets.length; j < l; j++){
                     var layer = self.targets[j];
 
+                    //根据当前缩放等级，固定一个像素值，将像素转换为实际距离
+                    var bfr = 0.009*self.map.getScale();//固定缓冲像素为0.01pixels
                     var url = layer.queryURL + '&spatialRel=intersects&geometry='
-                            + geometry.toString() + '&buffer=100';
+                            + geometry.toString() + '&buffer='+bfr;
 
                     $.ajax({
                         url: url,

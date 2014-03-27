@@ -21,6 +21,10 @@ class TableCache(object):
 
     SPATIAL_TRANSFORM = "SELECT ST_AsText(ST_Transform(ST_GeomFromText(%s,%s),%s))"
 
+    #用于geometry为global的情况(空间数据库)
+    BASEGEOSQL_G = "SELECT ST_AsGeoJSON(%s),%s FROM %s WHERE  %s"
+    TRANSGEOSQL_G = "SELECT ST_AsGeoJSON(ST_Transform(ST_SetSRID(%s,%s),%s)),%s FROM %s WHERE %s"
+
 
     def __init__(self,ini,layer):
         '''
@@ -194,51 +198,67 @@ class TableCache(object):
 
         outfields = ",".join(outfields)
 
-        if(type(geometry)==list):
-            extent = Extent(geometry)      #bbox
-            extentText = extent.toText()
-        else:
-            extentText = "'%s'"%geometry
+        if(geometry == 'global'): #请求所有地理范围内数据
+            if(dbsr != outsr): #坐标转换
+                spatial_query_sql = self.TRANSGEOSQL_G%(
+                                            self.ini.g_field,
+                                            dbsr,
+                                            outsr,
+                                            outfields,
+                                            self.ini.scheme_name,
+                                            where)
+            else:
+                spatial_query_sql = self.BASEGEOSQL_G%(
+                                    self.ini.g_field,
+                                    outfields,
+                                    self.ini.scheme_name,
+                                    where)
+        else: #geometry非global的情况
+            if(type(geometry)==list):
+                extent = Extent(geometry)      #bbox
+                extentText = extent.toText()
+            else:
+                extentText = "'%s'"%geometry
 
-        if(distance):
-            buffer_sql = self.GETBUFFER%(extentText,distance)
-            self.bufferArea = str(conn.execute(buffer_sql).fetchall()[0][0])
-            extentText = "'%s'"%self.bufferArea
+            if(distance):
+                buffer_sql = self.GETBUFFER%(extentText,distance)
+                self.bufferArea = str(conn.execute(buffer_sql).fetchall()[0][0])
+                extentText = "'%s'"%self.bufferArea
 
-        if(dbsr != insr): #坐标转换
-            extentText = "'%s'"%conn.execute(self.SPATIAL_TRANSFORM%(extentText,insr,dbsr)).fetchall()[0][0]
-        
-        postgisRelationships = {
-            "contains":"ST_Contains",
-            "intersects":"ST_Intersects",
-            "crosses":"ST_Crosses",
-            "touches":"ST_Touches",
-            "within":"ST_Within",
-            "overlaps":"ST_Overlaps"
-        }
+            if(dbsr != insr): #坐标转换
+                extentText = "'%s'"%conn.execute(self.SPATIAL_TRANSFORM%(extentText,insr,dbsr)).fetchall()[0][0]
+            
+            postgisRelationships = {
+                "contains":"ST_Contains",
+                "intersects":"ST_Intersects",
+                "crosses":"ST_Crosses",
+                "touches":"ST_Touches",
+                "within":"ST_Within",
+                "overlaps":"ST_Overlaps"
+            }
 
-        relation = postgisRelationships.get(spatialRel)
+            relation = postgisRelationships.get(spatialRel)
 
-        if(dbsr != outsr): #坐标转换
-            spatial_query_sql = self.TRANSGEOSQL%(
-                                        self.ini.g_field,
-                                        dbsr,
-                                        outsr,
-                                        outfields,
-                                        self.ini.scheme_name,
-                                        relation,
-                                        extentText,
-                                        self.ini.g_field,
-                                        where)
-        else:
-            spatial_query_sql = self.BASEGEOSQL%(
-                                self.ini.g_field,
-                                outfields,
-                                self.ini.scheme_name,
-                                relation,
-                                extentText,
-                                self.ini.g_field,
-                                where)
+            if(dbsr != outsr): #坐标转换
+                spatial_query_sql = self.TRANSGEOSQL%(
+                                            self.ini.g_field,
+                                            dbsr,
+                                            outsr,
+                                            outfields,
+                                            self.ini.scheme_name,
+                                            relation,
+                                            extentText,
+                                            self.ini.g_field,
+                                            where)
+            else:
+                spatial_query_sql = self.BASEGEOSQL%(
+                                    self.ini.g_field,
+                                    outfields,
+                                    self.ini.scheme_name,
+                                    relation,
+                                    extentText,
+                                    self.ini.g_field,
+                                    where)
 
         results = conn.execute(spatial_query_sql)
         records = results.fetchall()#获取数据所有记录
