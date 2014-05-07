@@ -11,8 +11,13 @@ class TableCache(object):
     '''
     Database Table(or view) Cache Class
     '''
-
+    # 查询所有数据（根据给定where）
     SQL = "SELECT %s FROM %s WHERE %s"
+    # 查询视野范围内
+    EXTENT_SQL = "SELECT %s FROM %s WHERE %s and %s<%s and %s>%s and %s<%s and %s>%s"
+    # 分页查询
+    PAGE_SQL = "SELECT * FROM (SELECT A.%s, ROWNUM RN FROM (SELECT * FROM %s WHERE %s) A WHERE ROWNUM <= %s) WHERE RN >=%s"
+
 
     BASEGEOSQL = "SELECT ST_AsGeoJSON(%s),%s FROM %s WHERE %s(ST_GeomFromText(%s),%s) AND %s"
     TRANSGEOSQL = "SELECT ST_AsGeoJSON(ST_Transform(ST_SetSRID(%s,%s),%s)),%s FROM %s WHERE %s(ST_GeomFromText(%s),%s) AND %s"
@@ -40,6 +45,18 @@ class TableCache(object):
 
         self.keys = []
 
+    def queryTotal(self,where):
+        '''
+        查询数据总条数，用于分页
+        '''
+        conn = self.engine.connect()
+        sql = "SELECT count(*) from "+self.name +" where "+where
+        results = conn.execute(sql)
+        records = results.fetchall()#获取数据所有记录
+        conn.close()
+
+        return records[0][0]
+
 
     def sync(self,queryParameter):
         '''
@@ -55,12 +72,15 @@ class TableCache(object):
         geometry = queryParameter.geometry
         insr = queryParameter.insr
         outsr = queryParameter.outsr
+        startRow = queryParameter.startRow
+        endRow = queryParameter.endRow
+
         
         if(insr == '4326'):
             distance = distance*0.0000106 
 
         if self.ini.x_field:
-            features = self.sync_xy(conn,where,outfields,distance,spatialRel,geometry,insr,outsr)
+            features = self.sync_xy(conn,where,outfields,distance,spatialRel,geometry,insr,outsr,startRow,endRow)
             
         elif self.ini.g_field:           
             features = self.sync_spatial(conn,where,outfields,distance,spatialRel,geometry,insr,outsr)
@@ -70,7 +90,7 @@ class TableCache(object):
 
         return self.layer.FEATURES
 
-    def sync_xy(self,conn,where,outfields,distance,spatialRel,geometry,insr,outsr):
+    def sync_xy(self,conn,where,outfields,distance,spatialRel,geometry,insr,outsr,startRow,endRow):
 
         #outfields为'*'或者为任意字段的组合（经纬度字段可有可无）
         if(outfields[0] != '*'):
@@ -81,50 +101,51 @@ class TableCache(object):
 
         outfields = ",".join(outfields)
 
-        sql = self.SQL%(outfields,self.name,where)
+        notShapely = True  #从数据库中取出的数据是否需要利用shapely再次进行空间过滤
+
+        import shapely
+        from shapely.wkt import dumps, loads
+        from shapely.geometry import Point,Polygon
+
+
+        if(int(startRow) and int(endRow)):  #分页查询
+            sql = self.PAGE_SQL%(outfields,self.name,where,endRow,startRow)
+            # 查出的数据做处理后直接返回，不需要再次过滤
+        else:                              #地理查询
+            if(type(geometry)==list):   #查询当前视野范围
+                extent = Extent(geometry)
+                polygon = loads(extent.toWKT()) #extentText多了一对引号
+                sql = self.EXTENT_SQL%(outfields,self.name,where,
+                                    self.ini.x_field,extent.xmax,
+                                    self.ini.x_field,extent.xmin,
+                                    self.ini.y_field,extent.ymax,
+                                    self.ini.y_field,extent.ymin)  #未考虑地图与数据库坐标系不同的问题
+
+            elif(geometry == 'global'):  #查询全部数据
+                polygon = geometry   #请求任意坐标数据(任意合法或不合法坐标数据)
+                sql = self.SQL%(outfields,self.name,where)
+            else:                        #查询多边形范围内，用于缓冲等操作
+                notShapely = False
+                polygon = loads(geometry) #可以是任意geometry,并非一定是多边形
+                if(distance): #则表示polygon可能不是多边形
+                    polygon = polygon.buffer(distance)  
+                    self.bufferArea = dumps(polygon)
+                bounds = polygon.bounds  #(minx, miny, maxx, maxy)
+                sql = self.EXTENT_SQL%(outfields,self.name,where,
+                                    self.ini.x_field,bounds[2],
+                                    self.ini.x_field,bounds[0],
+                                    self.ini.y_field,bounds[3],
+                                    self.ini.y_field,bounds[1])
+
         results = conn.execute(sql)
         records = results.fetchall()#获取数据所有记录
         conn.close()#关闭数据库连接,将connection放回连接池
 
         self.keys = map(lambda key:str(key.upper()),results.keys())
         results = map(lambda vals:dict(zip(self.keys,map(encodeAttr,vals))),records)
+        
         features = []
         gtype = "point"
-        import shapely
-        from shapely.wkt import dumps, loads
-        from shapely.geometry import Point,Polygon
-        # from shapely.geometry import *
-
-        if(geometry == 'global'):  #空间数据库尚且不允许该geometry参数
-            polygon = geometry   #请求任意坐标数据(任意合法或不合法坐标数据)
-        elif(type(geometry)==list):
-            extent = Extent(geometry)      #bbox
-            polygon = loads(extent.toWKT()) #extentText多了一对引号
-        else:
-            polygon = loads(geometry) #可以是任意geometry,并非一定是多边形
-            if(distance): #则表示polygon可能不是多边形
-                polygon = polygon.buffer(distance)  
-                self.bufferArea = dumps(polygon)
-
-        #转换db中点的坐标，若outsr与insr不同，总共需要把所有点转换两次
-        
-        #因为polygon对象可能是shapely.geometry中的任意对象，比如环线，线等，转换不方便
-
-        #如果polygon不是Polygon对象，以下方法要增加判断
-        # print type(polygon)
-        # x = list(polygon.exterior.coords)
-        # y = []
-        # for ele in x:
-        #     temp = toMerctor(ele[0],ele[1])
-        #     y.append(temp)
-        # polygon1 = Polygon(y)
-        # print polygon1
-
-
-        #所以：转换db中的点要素
-
-
-
         shapelyRelationships = {
                 "contains":"polygon.contains(point)",
                 "crosses":"polygon.crosses(point)",
@@ -154,7 +175,7 @@ class TableCache(object):
 
             point = Point(x, y)
 
-            if(polygon == 'global' or (eval(functionStr))): #or左右的参数不能调换顺序
+            if(notShapely or (eval(functionStr))): #or左右的参数不能调换顺序
                 if(insr != outsr):
                     if (outsr == '4326'):
                         x,y = toLonLat(x,y)
@@ -168,6 +189,7 @@ class TableCache(object):
                 feature = {"geometry":{'type':gtype,'coordinates':shape},
                             'properties':item}
                 features.append(feature)
+            
 
         return features
 

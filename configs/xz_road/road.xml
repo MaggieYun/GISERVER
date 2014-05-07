@@ -2,34 +2,86 @@
 <!-- <Map  srs="+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext +over +no_defs"> -->
   <Style name="Style">
     <Rule>
-      <Filter>[type_name] = '国道省道'</Filter>
+      <MaxScaleDenominator>559082</MaxScaleDenominator>
+      <MinScaleDenominator>279541</MinScaleDenominator>
+      <LineSymbolizer stroke="#1ea13b" stroke-width="1" stroke-opacity="1" stroke-linejoin="round"/>
+    </Rule>
+
+    <Rule>
+      <MaxScaleDenominator>279541</MaxScaleDenominator>
+      <MinScaleDenominator>69885</MinScaleDenominator>
+      <LineSymbolizer stroke="#1ea13b" stroke-width="1.2" stroke-opacity="1" stroke-linejoin="round"/>
+    </Rule>
+
+    <Rule>
+      <MaxScaleDenominator>69885</MaxScaleDenominator>
+      <MinScaleDenominator>34942</MinScaleDenominator>
+      <LineSymbolizer stroke="#1ea13b" stroke-width="1.4" stroke-opacity="1" stroke-linejoin="round"/>
+    </Rule>
+
+    <Rule>
+      <MaxScaleDenominator>34942</MaxScaleDenominator>
+      <MinScaleDenominator>17471</MinScaleDenominator>
+      <LineSymbolizer stroke="#1ea13b" stroke-width="1.6" stroke-opacity="1" stroke-linejoin="round"/>
+    </Rule>
+
+    <Rule>
+      <MaxScaleDenominator>17471</MaxScaleDenominator>
+      <MinScaleDenominator>8735</MinScaleDenominator>
+      <LineSymbolizer stroke="#1ea13b" stroke-width="1.8" stroke-opacity="1" stroke-linejoin="round"/>
+    </Rule>
+
+    <Rule>
+      <MaxScaleDenominator>8735</MaxScaleDenominator>
+      <MinScaleDenominator>4367</MinScaleDenominator>
       <LineSymbolizer stroke="#1ea13b" stroke-width="2" stroke-opacity="1" stroke-linejoin="round"/>
-  <!--     <TextSymbolizer size="10" fill="white" face-name="Microsoft YaHei Regular" halo-fill="#2E2F39" halo-radius="1" wrap-width="20" placement="line">[name]</TextSymbolizer> -->
     </Rule>
+
     <Rule>
-      <Filter>[type_name] = '主干道'</Filter>
-      <LineSymbolizer stroke="#5CB85C" stroke-width="1.5" />
-      <LineSymbolizer stroke="red" stroke-width="0.5" />
-<!--       <TextSymbolizer size="10" fill="white" face-name="Microsoft YaHei Regular" halo-fill="#2E2F39" halo-radius="1" wrap-width="20" placement="line">[name]</TextSymbolizer> -->
+      <MaxScaleDenominator>4367</MaxScaleDenominator>
+      <MinScaleDenominator>2183</MinScaleDenominator>
+      <LineSymbolizer stroke="#1ea13b" stroke-width="2.2" stroke-opacity="1" stroke-linejoin="round"/>
     </Rule>
+
     <Rule>
-      <Filter>[type_name] = '高速'</Filter>
-      <LineSymbolizer stroke="#5CB85C" stroke-width="1" />
+      <MaxScaleDenominator>2183</MaxScaleDenominator>
+      <MinScaleDenominator>1091</MinScaleDenominator>
+      <LineSymbolizer stroke="#1ea13b" stroke-width="2.4" stroke-opacity="1" stroke-linejoin="round"/>
     </Rule>
-     <Rule>
-      <Filter>[type_name] = '匝道'</Filter>
-      <LineSymbolizer stroke="#5CB85C" stroke-width="0.5" />
+
+    <Rule>
+      <MaxScaleDenominator>1091</MaxScaleDenominator>
+      <MinScaleDenominator>545</MinScaleDenominator>
+      <LineSymbolizer stroke="#1ea13b" stroke-width="2.6" stroke-opacity="1" stroke-linejoin="round"/>
     </Rule>
-     <Rule>
-      <Filter>[type_name] = '次干道'</Filter>
-      <LineSymbolizer stroke="#e8dfc0" stroke-width="0.8" />
-<!--       <TextSymbolizer size="10" fill="white" face-name="Microsoft YaHei Regular" halo-fill="#2E2F39" halo-radius="1" wrap-width="20" placement="line">[name]</TextSymbolizer> -->
+
+    <Rule>
+      <MaxScaleDenominator>545</MaxScaleDenominator>
+      <MinScaleDenominator>272</MinScaleDenominator>
+      <LineSymbolizer stroke="#1ea13b" stroke-width="2.8" stroke-opacity="1" stroke-linejoin="round"/>
+    </Rule>
+
+    <Rule>
+      <MaxScaleDenominator>272</MaxScaleDenominator>
+      <MinScaleDenominator>136</MinScaleDenominator>
+      <LineSymbolizer stroke="#1ea13b" stroke-width="3" stroke-opacity="1" stroke-linejoin="round"/>
+    </Rule>
+
+    <Rule>
+      <MaxScaleDenominator>136</MaxScaleDenominator>
+      <MinScaleDenominator>68</MinScaleDenominator>
+      <LineSymbolizer stroke="#1ea13b" stroke-width="3.1" stroke-opacity="1" stroke-linejoin="round"/>
+    </Rule>
+
+    <Rule>
+      <MaxScaleDenominator>68</MaxScaleDenominator>
+      <MinScaleDenominator>34</MinScaleDenominator>
+      <LineSymbolizer stroke="#1ea13b" stroke-width="3.2" stroke-opacity="1" stroke-linejoin="round"/>
     </Rule>
 
     <Rule>
       <ElseFilter/>
-      <LineSymbolizer stroke="#F0AD4E" stroke-width="2" />
-   <!--    <TextSymbolizer size="10" fill="white" face-name="Microsoft YaHei Regular" halo-fill="#2E2F39" halo-radius="1" wrap-width="20" placement="line">[name]</TextSymbolizer> -->
+      <LineSymbolizer stroke="#1ea13b" stroke-width="3" />
     </Rule>
   </Style>
 

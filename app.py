@@ -2,12 +2,13 @@
 #author 许照云
 import tornado.ioloop
 import tornado.web
-from main import queryHandler,exportHandler
+from main import queryHandler,exportHandler,totalHandler
 
 def startup(port):
     application = tornado.web.Application([
         (r"/giserver2013/(\w*)/(\w*)/export",exportHandler), 
         (r"/giserver2013/(\w*)/(\w*)/query",queryHandler),
+        (r"/giserver2013/(\w*)/(\w*)/total",totalHandler),
     
         # (r"/static/(.*)", tornado.web.StaticFileHandler, {"path": os.path.dirname(__file__)+ os.sep + "sample"}),
     ])

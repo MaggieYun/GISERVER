@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>徐州路网</title>
+  <title>点、线要素综合</title>
   <style>
     #mapDiv{
       width: 800px;
@@ -14,7 +14,13 @@
 </head>
 <body>
   <div id="mapDiv"></div>
+<!--   <div id="result">
+    <button type="button" id="activate">区域选择contains</button><br><br>
+    <button type="button" id="linebuffer">线缓冲</button>
+    缓冲距离：<input type="text" id="buffer" value = 0.005>km<br><br>
+    <button type="button" id="selectpoint">点选</button>
 
+  </div><br><br> -->
 
 </body>
 <script src="../libs/geoSetup.js"></script>
@@ -30,6 +36,9 @@
 <script src="../libs/openlayers/iMap.js"></script>
 <script>
   $(function(){
+    //设置地区 320500为苏州 
+    //设置坐标系 PGIS or gmap
+    // GeoSetup.setLocation('320500','PGIS');
     
     //注意前缀「pgis@」标识底图类型
     var base_url = 'pgis@http://172.16.60.46:6666/rest/pub/1/tiles';
@@ -37,32 +46,41 @@
     // GeoSetup.setLocation('320500','GMAP');
     GeoSetup.setLocation('320683','PGIS');
     
+    
     MAP_SR = '4326';
+    // var base_url ='gmap@http://172.16.60.32:9000/rest/pub/1/tile';
 
     var map = $('#mapDiv').iMap({
       bases: [base_url],
       extent: GeoSetup.getExtent()//获取地图范围
     });
 
-    map.addLayer({
-      url: 'http://localhost:6666/giserver2013/configs/xz_road/',
-      where:'1=1'
-    });
+    // map.addLayer({
+    //   url: 'http://localhost:6666/giserver2013/configs/testOra/',
+    //   where:'1=2'
+    // });
 
-    map.addLayer({
-      url: 'http://localhost:6666/giserver2013/configs/xz_area/',
-      where:'1=1'
-    });
-
-    map.addLayer({
-      url: 'http://localhost:6666/giserver2013/configs/xz_outline/',
-      where:'1=1'
-    });
 
     map.addLayer({
       url: 'http://localhost:6666/giserver2013/configs/point/',
       where : "1=1"
     });
+
+    map.addLayer({
+      url: 'http://localhost:6666/giserver2013/configs/video/',
+      where : "1=1"
+    });
+
+
+
+
+    // map.bind('feature:click',function(e,event){ //在要素单击事件下弹出tip框
+    //     var feature = event.feature;
+    //     // console.log(feature.attributes);
+    //     map.showTip(feature, getHtml(feature)); //showTip方法第2个参数接受任意html
+
+    // });
+
 
 
   });

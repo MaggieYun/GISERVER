@@ -45,6 +45,10 @@ class Layer:
     def reload(self):
         pass
 
+    def queryTotal(self,where):
+        totalnum = self.cache.queryTotal(where)
+        return json.dumps(totalnum)
+
     def query(self,queryParameter,format):
         self.cache.sync(queryParameter)
         
@@ -119,7 +123,7 @@ class Layer:
 
 
 class QueryParameter:
-    def __init__(self,geometry,where,insr,outfields,outsr,distance,spatialRel):
+    def __init__(self,geometry,where,insr,outfields,outsr,distance,spatialRel,startRow,endRow):
         self.geometry = geometry
         self.where = where
         self.insr = insr
@@ -127,6 +131,9 @@ class QueryParameter:
         self.outsr = outsr
         self.distance = distance
         self.spatialRel = spatialRel
+
+        self.startRow = startRow
+        self.endRow = endRow
 
     @classmethod
     def create(cls,requestHandler):
@@ -138,12 +145,15 @@ class QueryParameter:
         outfields = requestHandler.get_argument("outfields","*")
         spatialRel = requestHandler.get_argument("spatialRel","contains")
 
+        startRow = requestHandler.get_argument("startRow",0)
+        endRow = requestHandler.get_argument("endRow",0)
+
 
         try:  #export请求时有的参数
             #bbox是以逗号分隔的四个数值  
             bbox = map(lambda x:float(x),requestHandler.get_argument("geometry").split(","))
             # print "bbox____________"
-            queryParameter = QueryParameter(bbox,where,insr,outfields,outsr,0,spatialRel) 
+            queryParameter = QueryParameter(bbox,where,insr,outfields,outsr,0,spatialRel,startRow,endRow) 
         except:  #query请求时参数
             #geometry是wkt字符串对象  
             geometry = requestHandler.get_argument("geometry")
@@ -151,7 +161,7 @@ class QueryParameter:
             distance = float(requestHandler.get_argument('buffer',0))  #缓冲距离
             # print "distance_________", distance
             #默认全部取出？？还是缓存的？？
-            queryParameter = QueryParameter(geometry,where,insr,outfields,outsr,distance,spatialRel)
+            queryParameter = QueryParameter(geometry,where,insr,outfields,outsr,distance,spatialRel,startRow,endRow)
         
         return queryParameter
 

@@ -1,17 +1,17 @@
 <Map srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
   <Style name="My Style">
     <Rule>
-      <MaxScaleDenominator>139770</MaxScaleDenominator>
+      <!-- <MaxScaleDenominator>139770</MaxScaleDenominator> -->
       <Filter>[STATUS] = "1"</Filter> <!-- 未调度 -->
       <PointSymbolizer file="../../resources/images/map_icons/alarm/jq_1.png" width="8" height="8" type="png" />
     </Rule>
     <Rule>
-      <MaxScaleDenominator>139770</MaxScaleDenominator>
+      <!-- <MaxScaleDenominator>139770</MaxScaleDenominator> -->
       <Filter>[STATUS] = "2"</Filter> <!-- 未调度 -->
       <PointSymbolizer file="../../resources/images/map_icons/alarm/jq_2.png" width="8" height="8" type="png" />
     </Rule>
     <Rule>
-      <MaxScaleDenominator>139770</MaxScaleDenominator>
+      <!-- <MaxScaleDenominator>139770</MaxScaleDenominator> -->
       <Filter>[STATUS] = "3"</Filter> <!-- 未调度 -->
       <PointSymbolizer file="../../resources/images/map_icons/alarm/jq_3.png" width="8" height="8" type="png" />
     </Rule>

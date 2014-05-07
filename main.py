@@ -83,6 +83,25 @@ class exportHandler(tornado.web.RequestHandler):
 
     post = get  
 
+class totalHandler(tornado.web.RequestHandler):
+
+    def get(self,layersPath,layerPath):
+        print u"query获取参数"
+
+        layersPath = os.path.join(dirpath,layersPath)
+        layerPath = layerPath+'.ini'
+
+        layerFactory = LayerFactory(layersPath) #单例
+        layer1 = layerFactory.createLayer(layerPath)
+
+        where = self.get_argument('where','1=1')
+
+        result = layer1.queryTotal(where)
+        self.write(result)
+
+
+    post = get  
+
 
 # class appendHandler(tornado.web.RequestHandler):
 

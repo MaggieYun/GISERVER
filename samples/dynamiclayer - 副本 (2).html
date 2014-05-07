@@ -1,0 +1,108 @@
+<doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>点、线要素综合</title>
+  <style>
+    #mapDiv{
+      width: 800px;
+      height: 600px;
+      float: left;
+    }
+  </style>
+  <link href="../libs/openlayers/theme/default.css" rel="stylesheet" />
+</head>
+<body>
+  <div id="mapDiv"></div>
+<!--   <div id="result">
+    <button type="button" id="activate">区域选择contains</button><br><br>
+    <button type="button" id="linebuffer">线缓冲</button>
+    缓冲距离：<input type="text" id="buffer" value = 0.005>km<br><br>
+    <button type="button" id="selectpoint">点选</button>
+
+  </div><br><br> -->
+
+</body>
+<script src="../libs/geoSetup.js"></script>
+<script src="../libs/jquery.js"></script>
+<script src="../libs/openlayers/OpenLayers.js"></script>
+<script src="../libs/openlayers/ExDyLayer2.js"></script>
+<script src="../libs/openlayers/ExSelectFeature2.js"></script>
+<script src="../libs/openlayers/ExSelectFeature.js"></script>
+<script src="../libs/openlayers/GMapLayer.js"></script>
+<script src="../libs/openlayers/PGisLayer.js"></script>
+<script src="../libs/javascript.util.js"></script>
+<script src="../libs/jsts.js"></script>
+<script src="../libs/openlayers/iMap.js"></script>
+<script>
+  $(function(){
+    //设置地区 320500为苏州 
+    //设置坐标系 PGIS or gmap
+    // GeoSetup.setLocation('320500','PGIS');
+    
+    //注意前缀「pgis@」标识底图类型
+    var base_url = 'pgis@http://172.16.64.24:8888/tiles';
+
+    // GeoSetup.setLocation('320500','GMAP');
+    GeoSetup.setLocation('320683','PGIS');
+    
+    
+    MAP_SR = '4326';
+    // var base_url ='gmap@http://172.16.60.32:9000/rest/pub/1/tile';
+
+    var map = $('#mapDiv').iMap({
+      bases: [base_url],
+      extent: GeoSetup.getExtent()//获取地图范围
+    });
+
+    // map.addLayer({
+    //   url: 'http://localhost:6666/giserver2013/configs/testOra/',
+    //   where:'1=2'
+    // });
+
+
+    map.addLayer({
+      url: 'http://172.16.64.18:6666/giserver2013/configs/2/',
+      where : "1=1"
+      // where:"roadname='东大街'",
+      // outfields:"GID,ID,roadname,roadid,roadtype,SOURCE"
+      // outfields:'*',
+      // format:'JSON'
+    });
+    map.addLayer({
+      url: 'http://172.16.64.18:6666/giserver2013/configs/2/',
+      where : "1=1"
+      // where:"roadname='东大街'",
+      // outfields:"GID,ID,roadname,roadid,roadtype,SOURCE"
+      // outfields:'*',
+      // format:'JSON'
+    });
+
+    // map.addLayer({
+    //   url: 'http://localhost:6666/giserver2013/configs/1/',
+    //   // where : "TASK_POINT_ID<30",
+    //   where:"TASK_POINT_NAME LIKE '%站%'", 
+    //   // outfields:"TASK_POINT_NAME,task_point_SEQ_NO"
+    //   // outfields:"TASK_POINT_NAME,TASK_POINT_SEQ_NO",
+    //   outfields:"TASK_POINT_NAME,TASK_ID,TASK_POINT_PASS_TIME,TASK_POINT_ID,TASK_POINT_SEQ_NO,TASK_POINT_LONGITUDE,TASK_POINT_LATITUDE"
+    //   // outfields:'*',
+    //   // format: 'JSON'
+    // });
+
+    var getHtml = function(feature){
+      html = feature.attributes.TASK_POINT_NAME;
+      return html;  //可返回任意html内容
+    };
+
+    map.bind('feature:click',function(e,event){ //在要素单击事件下弹出tip框
+        var feature = event.feature;
+        // console.log(feature.attributes);
+        map.showTip(feature, getHtml(feature)); //showTip方法第2个参数接受任意html
+
+    });
+
+
+
+  });
+</script>
+</html>

@@ -1,19 +1,19 @@
 <Map srs="+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs">
   <Style name="My Style">
     <Rule>
-      <MaxScaleDenominator>139770</MaxScaleDenominator>
+      <!-- <MaxScaleDenominator>139770</MaxScaleDenominator> -->
       <Filter>[STATUS] = 2 </Filter>
       <PointSymbolizer file="../../resources/images/police_y.png" width="8" height="8" type="png" />
     </Rule>
 
     <Rule>
-      <MaxScaleDenominator>139770</MaxScaleDenominator>
+      <!-- <MaxScaleDenominator>139770</MaxScaleDenominator> -->
       <Filter>[STATUS] = 1 </Filter>
       <PointSymbolizer file="../../resources/images/police_b.png" width="8" height="8" type="png" />
     </Rule>
 
     <Rule>
-      <MaxScaleDenominator>139770</MaxScaleDenominator>
+      <!-- <MaxScaleDenominator>139770</MaxScaleDenominator> -->
       <Filter>[STATUS] = 0 </Filter>
       <PointSymbolizer file="../../resources/images/police_red.png" width="8" height="8" type="png" />
     </Rule>
